@@ -72,6 +72,7 @@ describe('Service data integrity', () => {
     expect(ids).toContain('nba-league-pass');
     expect(ids).toContain('nfl-plus');
     expect(ids).toContain('nfl-sunday-ticket');
+    expect(ids).toContain('paramount-plus');
   });
 });
 
@@ -188,6 +189,37 @@ describe('league channel mappings', () => {
     const channel = findChannelByName('NFL Sunday Ticket');
     expect(channel).toBeDefined();
     expect(channel!.serviceIds).toContain('nfl-sunday-ticket');
+  });
+
+  it('CBS maps to paramount-plus', () => {
+    const channel = CHANNELS.find((c) => c.id === 'cbs');
+    expect(channel).toBeDefined();
+    expect(channel!.serviceIds).toContain('paramount-plus');
+    expect(channel!.serviceIds).toContain('youtube-tv');
+  });
+
+  it('CBS Sports Network maps to paramount-plus', () => {
+    const channel = CHANNELS.find((c) => c.id === 'cbs-sports');
+    expect(channel).toBeDefined();
+    expect(channel!.serviceIds).toContain('paramount-plus');
+  });
+
+  it('Paramount+ exclusive channel exists', () => {
+    const channel = CHANNELS.find((c) => c.id === 'paramount-exclusive');
+    expect(channel).toBeDefined();
+    expect(channel!.serviceIds).toEqual(['paramount-plus']);
+  });
+
+  it('PGA Tour Live maps to espn-plus', () => {
+    const channel = CHANNELS.find((c) => c.id === 'pga-tour-live');
+    expect(channel).toBeDefined();
+    expect(channel!.serviceIds).toContain('espn-plus');
+  });
+
+  it('ESPN PPV maps to espn-plus', () => {
+    const channel = CHANNELS.find((c) => c.id === 'espn-ppv');
+    expect(channel).toBeDefined();
+    expect(channel!.serviceIds).toContain('espn-plus');
   });
 });
 

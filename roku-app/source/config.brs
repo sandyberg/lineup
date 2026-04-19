@@ -31,6 +31,12 @@ function GetStreamingServices() as Object
             color: "#00A8E1"
         },
         {
+            id: "paramount-plus",
+            name: "Paramount+",
+            rokuChannelId: "31440",
+            color: "#0064FF"
+        },
+        {
             id: "apple-tv",
             name: "Apple TV+",
             rokuChannelId: "551012",

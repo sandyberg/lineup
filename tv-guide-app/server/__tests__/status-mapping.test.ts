@@ -47,9 +47,20 @@ describe('mapStatus', () => {
     });
   });
 
+  describe('golf/tennis statuses', () => {
+    it.each([
+      ['Round 1', 'upcoming'],
+      ['Round 3', 'upcoming'],
+      ['Rd 2', 'upcoming'],
+      ['Tee Time', 'upcoming'],
+    ])('maps "%s" to "%s"', (input, expected) => {
+      expect(mapStatus(input)).toBe(expected);
+    });
+  });
+
   describe('edge cases', () => {
-    it('defaults unknown statuses to final', () => {
-      expect(mapStatus('some_random_status')).toBe('final');
+    it('defaults unknown statuses to upcoming', () => {
+      expect(mapStatus('some_random_status')).toBe('upcoming');
     });
 
     it('handles null/undefined gracefully', () => {

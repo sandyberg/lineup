@@ -92,8 +92,9 @@ export function mapStatus(status: string): 'upcoming' | 'live' | 'final' {
   if (s.includes('halftime') || s.includes('half time') || s === 'ht') return 'live';
   if (/^\d+h$/i.test(s) || s.includes('in progress') || s.includes('in play') || s.includes('live')) return 'live';
   if (s === 'in' || (s.includes('in') && !s.includes('final') && !s.includes('finish'))) return 'live';
+  if (/round\s*\d/i.test(s) || s.includes('tee time') || s.includes('rd ')) return 'upcoming';
   if (s.includes('ft') || s.includes('finished') || s.includes('final') || s.includes('aet') || s.includes('completed') || s.includes('post')) return 'final';
-  return 'final';
+  return 'upcoming';
 }
 
 // ---------------------------------------------------------------------------
@@ -130,6 +131,8 @@ const ESPN_SPORTS: Record<string, { slug: string; league: string; sport: string 
   cfb: { slug: 'football/college-football', league: 'NCAAF', sport: 'college-football' },
   cbb: { slug: 'basketball/mens-college-basketball', league: 'NCAAM', sport: 'college-basketball' },
   ufc: { slug: 'mma/ufc', league: 'UFC', sport: 'mma' },
+  pga: { slug: 'golf/pga', league: 'PGA Tour', sport: 'golf' },
+  lpga: { slug: 'golf/lpga', league: 'LPGA', sport: 'golf' },
 };
 
 const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports';
@@ -285,7 +288,10 @@ export function dedupeAndFilter(
     if (event.status === 'final' && eventTime < oneDayAgo) continue;
     if (eventTime > twoDaysFromNow) continue;
 
-    const key = `${event.homeTeam ?? ''}-${event.awayTeam ?? ''}-${event.startTime.split('T')[0]}`.toLowerCase();
+    const hasTeams = event.homeTeam || event.awayTeam;
+    const key = hasTeams
+      ? `${event.homeTeam ?? ''}-${event.awayTeam ?? ''}-${event.startTime.split('T')[0]}`.toLowerCase()
+      : `${event.title}-${event.startTime.split('T')[0]}`.toLowerCase();
     if (!seen.has(key)) {
       seen.add(key);
       deduped.push(event);

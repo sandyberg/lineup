@@ -178,6 +178,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
+    paddingBottom: 80,
   },
   emptyIconContainer: {
     width: 80,

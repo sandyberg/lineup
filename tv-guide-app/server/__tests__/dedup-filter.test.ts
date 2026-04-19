@@ -141,7 +141,7 @@ describe('dedupeAndFilter', () => {
       expect(result).toHaveLength(2);
     });
 
-    it('handles events without team names', () => {
+    it('keeps non-team events with different titles on the same day', () => {
       const time = new Date(NOW + ONE_HOUR).toISOString();
       const events = [
         makeEvent({
@@ -160,8 +160,29 @@ describe('dedupeAndFilter', () => {
         }),
       ];
       const result = dedupeAndFilter(events, NOW);
-      // Both have undefined teams so they create the same key -- this is a known limitation
-      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result).toHaveLength(2);
+    });
+
+    it('dedupes non-team events with the same title on the same day', () => {
+      const time = new Date(NOW + ONE_HOUR).toISOString();
+      const events = [
+        makeEvent({
+          id: 'espn-ufc',
+          title: 'UFC 315',
+          homeTeam: undefined,
+          awayTeam: undefined,
+          startTime: time,
+        }),
+        makeEvent({
+          id: 'sdb-ufc',
+          title: 'UFC 315',
+          homeTeam: undefined,
+          awayTeam: undefined,
+          startTime: time,
+        }),
+      ];
+      const result = dedupeAndFilter(events, NOW);
+      expect(result).toHaveLength(1);
     });
   });
 

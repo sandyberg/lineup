@@ -28,8 +28,8 @@ describe('service grouping', () => {
     expect(MAJOR_SERVICES.length + LEAGUE_SERVICES.length).toBe(STREAMING_SERVICES.length);
   });
 
-  it('has 6 major services', () => {
-    expect(MAJOR_SERVICES).toHaveLength(6);
+  it('has 7 major services', () => {
+    expect(MAJOR_SERVICES).toHaveLength(7);
   });
 
   it('has 4 league services', () => {
@@ -43,6 +43,7 @@ describe('service grouping', () => {
     expect(ids).toContain('peacock');
     expect(ids).toContain('hulu-live');
     expect(ids).toContain('prime-video');
+    expect(ids).toContain('paramount-plus');
     expect(ids).toContain('apple-tv');
   });
 
@@ -78,6 +79,14 @@ describe('league service deep links', () => {
     expect(nfl.deepLinks.tvos).toBe('nflgamecenter://');
     expect(nfl.deepLinks.android).toContain('nflgamecenter');
     expect(nfl.deepLinks.web).toBe('https://www.nfl.com/plus/');
+  });
+
+  it('Paramount+ has valid deep links', () => {
+    const pp = SERVICE_MAP['paramount-plus'];
+    expect(pp).toBeDefined();
+    expect(pp.deepLinks.tvos).toBe('paramountplus://');
+    expect(pp.deepLinks.android).toContain('cbs.ott');
+    expect(pp.deepLinks.web).toBe('https://www.paramountplus.com');
   });
 
   it('Sunday Ticket deep links point to YouTube TV', () => {

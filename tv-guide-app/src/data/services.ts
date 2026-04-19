@@ -57,6 +57,17 @@ export const STREAMING_SERVICES: StreamingService[] = [
     },
   },
   {
+    id: 'paramount-plus',
+    name: 'Paramount+',
+    color: '#0064FF',
+    group: 'major',
+    deepLinks: {
+      tvos: 'paramountplus://',
+      android: 'intent://paramountplus.com#Intent;package=com.cbs.ott;scheme=https;end',
+      web: 'https://www.paramountplus.com',
+    },
+  },
+  {
     id: 'apple-tv',
     name: 'Apple TV+',
     color: '#555555',

@@ -5,7 +5,7 @@ import { SportCategory, UserPreferences } from '@/lib/types';
 const STORAGE_KEY = 'tv-guide-preferences';
 
 const defaultPreferences: UserPreferences = {
-  selectedServices: ['youtube-tv', 'espn-plus', 'peacock', 'hulu-live', 'prime-video', 'apple-tv'],
+  selectedServices: ['youtube-tv', 'espn-plus', 'peacock', 'hulu-live', 'prime-video', 'paramount-plus', 'apple-tv'],
   selectedSport: 'all',
   onboardingComplete: false,
 };

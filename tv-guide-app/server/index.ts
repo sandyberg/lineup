@@ -32,11 +32,21 @@ export async function getEvents(): Promise<EnrichedEvent[]> {
     nfl: 'nfl-plus',
   };
 
+  const SPORT_SERVICE_MAP: Record<string, string> = {
+    mma: 'espn-plus',
+    golf: 'espn-plus',
+    nhl: 'espn-plus',
+  };
+
   const enriched = raw.map((event) => {
     const services = [...getServicesForChannel(event.channel)];
     const leagueService = LEAGUE_SERVICE_MAP[event.sport];
     if (leagueService && !services.includes(leagueService)) {
       services.push(leagueService);
+    }
+    const sportService = SPORT_SERVICE_MAP[event.sport];
+    if (sportService && !services.includes(sportService)) {
+      services.push(sportService);
     }
     return { ...event, availableServices: services };
   });

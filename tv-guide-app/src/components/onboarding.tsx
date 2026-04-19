@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 60,
-    paddingTop: 60,
+    paddingBottom: 40,
   },
   logoText: {
     color: '#FFFFFF',

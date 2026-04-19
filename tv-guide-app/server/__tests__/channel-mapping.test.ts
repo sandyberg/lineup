@@ -114,6 +114,41 @@ describe('getServicesForChannel', () => {
     });
   });
 
+  describe('Paramount+ channels', () => {
+    it('maps CBS to paramount-plus', () => {
+      const services = getServicesForChannel('CBS');
+      expect(services).toContain('paramount-plus');
+      expect(services).toContain('youtube-tv');
+    });
+
+    it('maps CBS Sports Network to paramount-plus', () => {
+      const services = getServicesForChannel('CBS Sports Network');
+      expect(services).toContain('paramount-plus');
+    });
+
+    it('maps Paramount+ exclusive', () => {
+      const services = getServicesForChannel('Paramount+');
+      expect(services).toEqual(['paramount-plus']);
+    });
+  });
+
+  describe('golf and MMA channels', () => {
+    it('maps PGA Tour Live to espn-plus', () => {
+      const services = getServicesForChannel('PGA Tour Live');
+      expect(services).toContain('espn-plus');
+    });
+
+    it('maps ESPN PPV to espn-plus', () => {
+      const services = getServicesForChannel('ESPN PPV');
+      expect(services).toContain('espn-plus');
+    });
+
+    it('maps ESPN+ PPV to espn-plus', () => {
+      const services = getServicesForChannel('ESPN+ PPV');
+      expect(services).toContain('espn-plus');
+    });
+  });
+
   describe('league service channels', () => {
     it('maps MLB.TV to mlb-tv', () => {
       const services = getServicesForChannel('MLB.TV');
