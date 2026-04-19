@@ -1,5 +1,5 @@
 function GetApiBaseUrl() as String
-    return "https://lineup-api.onrender.com"
+    return "https://lineup-api-31li.onrender.com"
 end function
 
 function FormatEventTime(isoTimestamp as String) as String

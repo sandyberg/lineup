@@ -50,7 +50,7 @@ Lineup is a TV-first app that shows live and upcoming sports events across your 
 
 ## Hosting
 
-- **Backend API** -- Deployed on [Render](https://render.com) at `https://lineup-api.onrender.com`
+- **Backend API** -- Deployed on [Render](https://render.com) at `https://lineup-api-31li.onrender.com`
 - **Privacy Policy** -- Hosted on GitHub Pages at [mitchsandberg.github.io/lineup](https://mitchsandberg.github.io/lineup/)
 - Production apps use the hosted API; local development falls back to `localhost:3001`
 
