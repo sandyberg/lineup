@@ -118,7 +118,7 @@
                     color="#FFFFFF"
                 />
                 <Label
-                    text="Press Home and open the app"
+                    id="pickerSubtitle"
                     translation="[20, 52]"
                     width="420"
                     horizAlign="center"

@@ -25,8 +25,8 @@ sub Init()
     m.pickerOverlay = m.top.FindNode("pickerOverlay")
     m.pickerBox = m.top.FindNode("pickerBox")
     m.pickerItemsGroup = m.top.FindNode("pickerItemsGroup")
+    m.pickerSubtitle = m.top.FindNode("pickerSubtitle")
     m.pickerServices = []
-    m.pickerFocusIdx = 0
 
     m.EVENTS_BASE_Y = 120
 
@@ -672,6 +672,12 @@ end sub
 sub showServicePicker(services as Object)
     m.pickerServices = services
     m.pickerItemsGroup.RemoveChildrenIndex(m.pickerItemsGroup.GetChildCount(), 0)
+
+    if services.Count() = 1
+        m.pickerSubtitle.text = "Open " + services[0].name + " to watch"
+    else
+        m.pickerSubtitle.text = "Open one of these apps to watch"
+    end if
 
     yPos = 0
     for each svc in services
