@@ -59,7 +59,6 @@ sub buildSportPills()
         pill.height = 34
         pill.color = "#1A1F2E"
         pill.translation = [xPos, 0]
-        pill.cornerRadius = 17
 
         pillLbl = CreateObject("roSGNode", "Label")
         pillLbl.text = label
@@ -342,7 +341,6 @@ function renderTimeSection(title as String, count as Integer, events as Object, 
         liveBadge.width = 65
         liveBadge.height = 24
         liveBadge.color = "#FF3B30"
-        liveBadge.cornerRadius = 5
         liveBadge.translation = [180, yPos + 3]
         liveLbl = CreateObject("roSGNode", "Label")
         liveLbl.text = count.ToStr() + " LIVE"
@@ -401,7 +399,6 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
     card.height = cardH
     card.color = "#1A1F2E"
     card.translation = [xPos, yPos]
-    card.cornerRadius = 10
 
     status = "upcoming"
     if evt.HasField("status") and evt.status <> invalid and evt.status <> ""
@@ -411,7 +408,6 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
     badge = CreateObject("roSGNode", "Rectangle")
     badge.translation = [12, 12]
     badge.height = 24
-    badge.cornerRadius = 5
     badgeTxt = CreateObject("roSGNode", "Label")
     badgeTxt.translation = [8, 3]
     badgeTxt.font = "font:SmallestSystemFont"
@@ -541,9 +537,8 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
             svcBg.height = 22
             svcBg.color = svc.color
             svcBg.translation = [svcX, svcY]
-            svcBg.cornerRadius = 4
 
-            svcLbl = CreateObject("roSGNode", "Label")
+                svcLbl = CreateObject("roSGNode", "Label")
             svcLbl.text = shortName
             svcLbl.font = "font:SmallestSystemFont"
             svcLbl.color = "#FFFFFF"
@@ -691,14 +686,12 @@ sub showServicePicker(services as Object)
         row.height = 42
         row.color = "#252D3D"
         row.translation = [0, yPos]
-        row.cornerRadius = 8
 
         dot = CreateObject("roSGNode", "Rectangle")
         dot.width = 12
         dot.height = 12
         dot.color = svc.color
         dot.translation = [14, 15]
-        dot.cornerRadius = 6
         row.AppendChild(dot)
 
         lbl = CreateObject("roSGNode", "Label")
@@ -761,7 +754,6 @@ sub buildServiceList()
         row.height = 44
         row.color = "#1A1F2E"
         row.translation = [0, yPos]
-        row.cornerRadius = 8
 
         isSelected = false
         for each selId in m.selectedServices
@@ -789,7 +781,6 @@ sub buildServiceList()
         colorDot.height = 10
         colorDot.color = svc.color
         colorDot.translation = [478, 17]
-        colorDot.cornerRadius = 5
 
         row.AppendChild(checkLbl)
         row.AppendChild(nameLbl)

@@ -107,7 +107,6 @@
                 height="300"
                 color="#1A1F2E"
                 translation="[440, 210]"
-                cornerRadius="12"
             >
                 <Label
                     id="pickerTitle"

@@ -45,11 +45,6 @@ function GetStatusLabel(status as String) as String
     return "FINAL"
 end function
 
-function IsChannelInstalled(channelId as String) as Boolean
-    dev = CreateObject("roDeviceInfo")
-    return dev.IsChannelInstalled(channelId)
-end function
-
 function SplitCsv(csv as String) as Object
     result = []
     if csv = invalid or csv = "" then return result
