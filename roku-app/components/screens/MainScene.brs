@@ -714,7 +714,7 @@ sub showServicePicker(services as Object)
     btn.translation = [0, btnY]
 
     btnLbl = CreateObject("roSGNode", "Label")
-    btnLbl.text = "Press Home to switch apps"
+    btnLbl.text = "OK to exit and switch apps"
     btnLbl.font = "font:SmallBoldSystemFont"
     btnLbl.color = "#FFFFFF"
     btnLbl.width = 380
@@ -1010,7 +1010,11 @@ function handleSettingsKeys(key as String) as Boolean
 end function
 
 function handlePickerKeys(key as String) as Boolean
-    if key = "back" or key = "OK"
+    if key = "OK"
+        m.top.close = true
+        return true
+    end if
+    if key = "back"
         hideServicePicker()
         return true
     end if
