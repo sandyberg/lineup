@@ -513,14 +513,13 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
     if evt.HasField("availableServices") and evt.availableServices <> invalid
         badgeCount = 0
         for each svcId in evt.availableServices
-            if badgeCount >= 3 then exit for
+            if badgeCount >= 2 then exit for
             svc = GetServiceById(svcId)
             if svc <> invalid
                 shortName = svc.name
                 if svc.DoesExist("short") then shortName = svc.short
-                bw = 50 + Len(shortName) * 5
-                if bw < 52 then bw = 52
-                if bw > 80 then bw = 80
+                bw = 80
+                if Len(shortName) <= 4 then bw = 60
                 if svcX + bw > cardW - 10 then exit for
 
                 svcBg = CreateObject("roSGNode", "Rectangle")
