@@ -13,10 +13,13 @@ export type SportCategory =
   | 'racing'
   | 'other';
 
+export type ServiceGroup = 'major' | 'league';
+
 export interface StreamingService {
   id: string;
   name: string;
   color: string;
+  group: ServiceGroup;
   deepLinks: {
     tvos?: string;
     android?: string;

@@ -34,6 +34,9 @@ const CHANNELS: ChannelEntry[] = [
   { id: 'apple-tv', name: 'Apple TV+', serviceIds: ['apple-tv'] },
   { id: 'mlb-tv', name: 'MLB.TV', serviceIds: ['mlb-tv'] },
   { id: 'mlb-tv-alt', name: 'MLBTV', serviceIds: ['mlb-tv'] },
+  { id: 'nba-league-pass', name: 'NBA League Pass', serviceIds: ['nba-league-pass'] },
+  { id: 'nfl-plus', name: 'NFL+', serviceIds: ['nfl-plus'] },
+  { id: 'nfl-sunday-ticket', name: 'NFL Sunday Ticket', serviceIds: ['nfl-sunday-ticket'] },
 ];
 
 function normalizeChannelName(name: string): string {

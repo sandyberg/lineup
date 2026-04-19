@@ -30,6 +30,11 @@ export const CHANNELS: Channel[] = [
   { id: 'big-ten', name: 'Big Ten Network', serviceIds: ['youtube-tv', 'hulu-live'] },
   { id: 'mlb-tv', name: 'MLB.TV', serviceIds: ['mlb-tv'] },
   { id: 'mlb-tv-alt', name: 'MLBTV', serviceIds: ['mlb-tv'] },
+  { id: 'nba-league-pass', name: 'NBA League Pass', serviceIds: ['nba-league-pass'] },
+  { id: 'nba-tv-lp', name: 'NBA TV', serviceIds: ['youtube-tv', 'hulu-live', 'nba-league-pass'] },
+  { id: 'nfl-plus', name: 'NFL+', serviceIds: ['nfl-plus'] },
+  { id: 'nfl-network-plus', name: 'NFL Network', serviceIds: ['youtube-tv', 'hulu-live', 'nfl-plus'] },
+  { id: 'nfl-sunday-ticket', name: 'NFL Sunday Ticket', serviceIds: ['nfl-sunday-ticket'] },
 ];
 
 export const CHANNEL_MAP = Object.fromEntries(

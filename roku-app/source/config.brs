@@ -41,6 +41,24 @@ function GetStreamingServices() as Object
             name: "MLB.TV",
             rokuChannelId: "46246",
             color: "#002D72"
+        },
+        {
+            id: "nba-league-pass",
+            name: "NBA League Pass",
+            rokuChannelId: "86065",
+            color: "#1D428A"
+        },
+        {
+            id: "nfl-plus",
+            name: "NFL+",
+            rokuChannelId: "241116",
+            color: "#013369"
+        },
+        {
+            id: "nfl-sunday-ticket",
+            name: "Sunday Ticket",
+            rokuChannelId: "195316",
+            color: "#FFB612"
         }
     ]
 end function

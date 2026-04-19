@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { STREAMING_SERVICES } from '@/data/services';
+import { MAJOR_SERVICES, LEAGUE_SERVICES } from '@/data/services';
 import { TV_SIZES } from '@/lib/constants';
 
 interface OnboardingProps {
@@ -123,7 +123,22 @@ function ServicePickerStep({
         </Text>
 
         <View style={styles.serviceGrid}>
-          {STREAMING_SERVICES.map((service) => (
+          {MAJOR_SERVICES.map((service) => (
+            <ServiceChip
+              key={service.id}
+              name={service.name}
+              color={service.color}
+              isSelected={selectedServices.includes(service.id)}
+              onPress={() => onToggle(service.id)}
+            />
+          ))}
+        </View>
+
+        <Text style={styles.sectionLabel}>League packages</Text>
+        <Text style={styles.sectionHint}>Add these if you subscribe to league-specific streaming</Text>
+
+        <View style={styles.serviceGrid}>
+          {LEAGUE_SERVICES.map((service) => (
             <ServiceChip
               key={service.id}
               name={service.name}
@@ -226,6 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 60,
+    paddingTop: 60,
   },
   logoText: {
     color: '#FFFFFF',
@@ -280,7 +296,7 @@ const styles = StyleSheet.create({
   },
   pickerContent: {
     paddingHorizontal: 60,
-    paddingTop: 60,
+    paddingTop: 100,
     paddingBottom: 40,
     alignItems: 'center',
   },
@@ -332,6 +348,22 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     flex: 1,
+  },
+  sectionLabel: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '600',
+    marginTop: 32,
+    marginBottom: 4,
+    alignSelf: 'flex-start',
+    paddingLeft: 4,
+  },
+  sectionHint: {
+    color: '#636366',
+    fontSize: 15,
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+    paddingLeft: 4,
   },
   selectedCount: {
     color: '#8E8E93',

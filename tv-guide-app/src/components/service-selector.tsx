@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { STREAMING_SERVICES } from '@/data/services';
+import { MAJOR_SERVICES, LEAGUE_SERVICES } from '@/data/services';
 import { TV_SIZES } from '@/lib/constants';
 
 interface ServiceSelectorProps {
@@ -26,7 +26,19 @@ export function ServiceSelector({ selectedServices, onToggle }: ServiceSelectorP
         Select the services you subscribe to. Only events available on your services will be shown.
       </Text>
       <View style={styles.grid}>
-        {STREAMING_SERVICES.map((service) => (
+        {MAJOR_SERVICES.map((service) => (
+          <ServiceToggle
+            key={service.id}
+            name={service.name}
+            color={service.color}
+            isSelected={selectedServices.includes(service.id)}
+            onPress={() => onToggle(service.id)}
+          />
+        ))}
+      </View>
+      <Text style={styles.sectionLabel}>League Packages</Text>
+      <View style={styles.grid}>
+        {LEAGUE_SERVICES.map((service) => (
           <ServiceToggle
             key={service.id}
             name={service.name}
@@ -109,6 +121,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 20,
+  },
+  sectionLabel: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '600',
+    marginTop: 32,
+    marginBottom: 16,
   },
   toggle: {
     width: 280,

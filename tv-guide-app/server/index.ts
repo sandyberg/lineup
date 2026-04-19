@@ -26,10 +26,17 @@ export async function getEvents(): Promise<EnrichedEvent[]> {
   console.log('[server] Fetching fresh sports data...');
   const raw = await fetchAllEvents();
 
+  const LEAGUE_SERVICE_MAP: Record<string, string> = {
+    mlb: 'mlb-tv',
+    nba: 'nba-league-pass',
+    nfl: 'nfl-plus',
+  };
+
   const enriched = raw.map((event) => {
-    const services = getServicesForChannel(event.channel);
-    if (event.sport === 'mlb' && !services.includes('mlb-tv')) {
-      services.push('mlb-tv');
+    const services = [...getServicesForChannel(event.channel)];
+    const leagueService = LEAGUE_SERVICE_MAP[event.sport];
+    if (leagueService && !services.includes(leagueService)) {
+      services.push(leagueService);
     }
     return { ...event, availableServices: services };
   });
