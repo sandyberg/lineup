@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { EventCard } from './event-card';
-import { SportEvent } from '@/lib/types';
+import { SportEvent, StreamingService } from '@/lib/types';
 import { type ResponsiveSizes } from '@/lib/constants';
 
 interface EventRowProps {
@@ -10,9 +10,10 @@ interface EventRowProps {
   userServices: string[];
   sizes: ResponsiveSizes;
   liveCount?: number;
+  onShowServicePicker?: (services: StreamingService[], event: SportEvent) => void;
 }
 
-export function EventRow({ label, events, userServices, sizes }: EventRowProps) {
+export function EventRow({ label, events, userServices, sizes, onShowServicePicker }: EventRowProps) {
   if (events.length === 0) return null;
 
   const liveCount = events.filter((e) => e.status === 'live').length;
@@ -42,7 +43,7 @@ export function EventRow({ label, events, userServices, sizes }: EventRowProps) 
         data={events}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <EventCard event={item} userServices={userServices} sizes={sizes} />
+          <EventCard event={item} userServices={userServices} sizes={sizes} onShowServicePicker={onShowServicePicker} />
         )}
         contentContainerStyle={dynamicStyles.listContent}
         showsHorizontalScrollIndicator={false}

@@ -8,18 +8,24 @@ import {
   View,
 } from 'react-native';
 import { STATUS_COLORS, type ResponsiveSizes } from '@/lib/constants';
-import { SportEvent } from '@/lib/types';
+import { SportEvent, StreamingService } from '@/lib/types';
 import { SERVICE_MAP } from '@/data/services';
 import { launchStreamingApp } from '@/lib/deep-links';
+
+function getMascotName(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/);
+  return parts.length > 1 ? parts[parts.length - 1] : fullName;
+}
 
 interface EventCardProps {
   event: SportEvent;
   userServices: string[];
   sizes: ResponsiveSizes;
   onPress?: () => void;
+  onShowServicePicker?: (services: StreamingService[], event: SportEvent) => void;
 }
 
-export function EventCard({ event, userServices, sizes, onPress }: EventCardProps) {
+export function EventCard({ event, userServices, sizes, onPress, onShowServicePicker }: EventCardProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const pressableRef = useRef<View>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -67,10 +73,17 @@ export function EventCard({ event, userServices, sizes, onPress }: EventCardProp
       onPress();
       return;
     }
+
+    const resolved = matchingServices.map((id) => SERVICE_MAP[id]).filter(Boolean);
+    if (resolved.length > 1 && onShowServicePicker) {
+      onShowServicePicker(resolved, event);
+      return;
+    }
+
     if (primaryService) {
       launchStreamingApp(primaryService);
     }
-  }, [onPress, primaryService, scaleAnim]);
+  }, [onPress, primaryService, matchingServices, event, onShowServicePicker, scaleAnim]);
 
   const isLive = event.status === 'live';
   const startTime = new Date(event.startTime);
@@ -118,13 +131,13 @@ export function EventCard({ event, userServices, sizes, onPress }: EventCardProp
           {event.homeTeam && event.awayTeam ? (
             <>
               <View style={styles.teamRow}>
-                <Text style={[styles.teamName, dynamicStyles.teamName]} numberOfLines={1}>{event.awayTeam}</Text>
+                <Text style={[styles.teamName, dynamicStyles.teamName]} numberOfLines={1}>{getMascotName(event.awayTeam)}</Text>
                 {event.awayScore != null && (
                   <Text style={[styles.score, dynamicStyles.score]}>{event.awayScore}</Text>
                 )}
               </View>
               <View style={styles.teamRow}>
-                <Text style={[styles.teamName, dynamicStyles.teamName]} numberOfLines={1}>{event.homeTeam}</Text>
+                <Text style={[styles.teamName, dynamicStyles.teamName]} numberOfLines={1}>{getMascotName(event.homeTeam)}</Text>
                 {event.homeScore != null && (
                   <Text style={[styles.score, dynamicStyles.score]}>{event.homeScore}</Text>
                 )}
@@ -156,7 +169,9 @@ export function EventCard({ event, userServices, sizes, onPress }: EventCardProp
         <View style={styles.watchHint}>
           <View style={[styles.watchHintDot, { backgroundColor: primaryServiceInfo.color }]} />
           <Text style={styles.watchHintText} numberOfLines={1}>
-            Press OK to watch on {primaryServiceInfo.name}
+            {matchingServices.length > 1
+              ? `Watch on ${primaryServiceInfo.name} +${matchingServices.length - 1} more`
+              : `Watch on ${primaryServiceInfo.name}`}
           </Text>
         </View>
       )}

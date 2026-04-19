@@ -10,8 +10,9 @@ import {
 import { EventRow } from '@/components/event-row';
 import { Onboarding } from '@/components/onboarding';
 import { SportFilter } from '@/components/sport-filter';
+import { ServicePickerModal } from '@/components/service-picker-modal';
 import { fetchEvents, groupEventsByTime, groupEventsBySport } from '@/lib/api';
-import { GroupedEvents, SportEvent } from '@/lib/types';
+import { GroupedEvents, SportEvent, StreamingService } from '@/lib/types';
 import { usePreferences } from '@/hooks/use-preferences';
 import { useResponsive } from '@/hooks/use-responsive';
 
@@ -19,8 +20,21 @@ export default function GuideScreen() {
   const [events, setEvents] = useState<SportEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [pickerServices, setPickerServices] = useState<StreamingService[]>([]);
+  const [pickerEvent, setPickerEvent] = useState<SportEvent | null>(null);
   const { prefs, setSport, toggleService, completeOnboarding, loaded } = usePreferences();
   const sizes = useResponsive();
+
+  const showServicePicker = useCallback((services: StreamingService[], event: SportEvent) => {
+    setPickerServices(services);
+    setPickerEvent(event);
+    setPickerVisible(true);
+  }, []);
+
+  const hideServicePicker = useCallback(() => {
+    setPickerVisible(false);
+  }, []);
 
   const loadEvents = useCallback(async () => {
     try {
@@ -136,11 +150,19 @@ export default function GuideScreen() {
               events={group.events}
               userServices={prefs.selectedServices}
               sizes={sizes}
+              onShowServicePicker={showServicePicker}
             />
           ))}
           <View style={styles.scrollPadding} />
         </ScrollView>
       )}
+
+      <ServicePickerModal
+        visible={pickerVisible}
+        services={pickerServices}
+        event={pickerEvent}
+        onClose={hideServicePicker}
+      />
     </View>
   );
 }
