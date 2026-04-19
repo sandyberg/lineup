@@ -3,66 +3,77 @@ function GetStreamingServices() as Object
         {
             id: "youtube-tv",
             name: "YouTube TV",
+            short: "YTTV",
             rokuChannelId: "195316",
             color: "#FF0000"
         },
         {
             id: "hulu-live",
             name: "Hulu",
+            short: "Hulu",
             rokuChannelId: "46041",
             color: "#1CE783"
         },
         {
             id: "espn-plus",
             name: "ESPN+",
+            short: "ESPN+",
             rokuChannelId: "34376",
             color: "#D12828"
         },
         {
             id: "peacock",
             name: "Peacock",
+            short: "Peacock",
             rokuChannelId: "593099",
             color: "#6B3FA0"
         },
         {
             id: "prime-video",
             name: "Prime Video",
+            short: "Prime",
             rokuChannelId: "13",
             color: "#00A8E1"
         },
         {
             id: "paramount-plus",
             name: "Paramount+",
+            short: "P+",
             rokuChannelId: "31440",
             color: "#0064FF"
         },
         {
             id: "apple-tv",
             name: "Apple TV+",
+            short: "ATV+",
             rokuChannelId: "551012",
             color: "#000000"
         },
         {
             id: "mlb-tv",
             name: "MLB.TV",
+            short: "MLB.TV",
             rokuChannelId: "46246",
             color: "#002D72"
         },
         {
             id: "nba-league-pass",
             name: "NBA League Pass",
+            short: "NBALP",
             rokuChannelId: "86065",
             color: "#1D428A"
         },
         {
             id: "nfl-plus",
             name: "NFL+",
+            short: "NFL+",
             rokuChannelId: "241116",
             color: "#013369"
         },
         {
             id: "nfl-sunday-ticket",
             name: "Sunday Ticket",
+            short: "SunTk",
             rokuChannelId: "195316",
             color: "#FFB612"
         }
