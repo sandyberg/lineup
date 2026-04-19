@@ -635,20 +635,35 @@ sub updateCardFocus()
 end sub
 
 sub launchSelectedCard()
-    if m.focusRow >= m.cardGrid.Count() then return
+    if m.cardGrid.Count() = 0 then return
+    if m.focusRow < 0 or m.focusRow >= m.cardGrid.Count() then return
     row = m.cardGrid[m.focusRow]
-    if m.focusCol >= row.Count() then return
+    if m.focusCol < 0 or m.focusCol >= row.Count() then return
 
-    evt = row[m.focusCol].evt
-    services = invalid
-    if evt.HasField("availableServices") then services = evt.availableServices
-    if services <> invalid and services.Count() > 0
-        svcId = services[0]
-        svc = GetServiceById(svcId)
-        if svc <> invalid
-            LaunchChannel(svc.rokuChannelId, "")
-        end if
+    cardInfo = row[m.focusCol]
+    if cardInfo = invalid or cardInfo.evt = invalid then return
+
+    evt = cardInfo.evt
+    if not evt.HasField("availableServices") then return
+    services = evt.availableServices
+    if services = invalid then return
+
+    firstSvcId = invalid
+    if Type(services) = "roArray" and services.Count() > 0
+        firstSvcId = services[0]
+    else
+        for each svcId in services
+            firstSvcId = svcId
+            exit for
+        end for
     end if
+
+    if firstSvcId = invalid or firstSvcId = "" then return
+
+    svc = GetServiceById(firstSvcId)
+    if svc = invalid then return
+
+    LaunchChannel(svc.rokuChannelId, "")
 end sub
 
 ' ─── SETTINGS ───

@@ -56,11 +56,11 @@ sub LaunchChannel(channelId as String, params as String)
         url = url + "?" + params
     end if
 
-    urlTransfer = CreateObject("roUrlTransfer")
-    urlTransfer.SetUrl(url)
-    port = CreateObject("roMessagePort")
-    urlTransfer.SetMessagePort(port)
-    urlTransfer.AsyncPostFromString("")
+    m.launchTransfer = CreateObject("roUrlTransfer")
+    m.launchTransfer.SetUrl(url)
+    m.launchPort = CreateObject("roMessagePort")
+    m.launchTransfer.SetMessagePort(m.launchPort)
+    m.launchTransfer.AsyncPostFromString("")
 end sub
 
 function ReadRegistrySetting(section as String, key as String) as Dynamic

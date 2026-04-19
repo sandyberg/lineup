@@ -43,7 +43,9 @@
             <Label
                 id="loadingLabel"
                 text="Loading sports..."
-                translation="[540, 380]"
+                translation="[0, 380]"
+                width="1280"
+                horizAlign="center"
                 font="font:MediumSystemFont"
                 color="#8B95A5"
                 visible="true"
@@ -53,7 +55,9 @@
             <Label
                 id="emptyLabel"
                 text="No live or upcoming events"
-                translation="[440, 380]"
+                translation="[0, 380]"
+                width="1280"
+                horizAlign="center"
                 font="font:MediumSystemFont"
                 color="#8B95A5"
                 visible="false"
