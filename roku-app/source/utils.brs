@@ -53,11 +53,17 @@ end function
 function SplitCsv(csv as String) as Object
     result = []
     if csv = invalid or csv = "" then return result
-    parts = csv.Split(",")
-    for each p in parts
-        trimmed = p.Trim()
-        if trimmed <> "" then result.Push(trimmed)
+    current = ""
+    for i = 0 to Len(csv) - 1
+        ch = Mid(csv, i + 1, 1)
+        if ch = ","
+            if current <> "" then result.Push(current)
+            current = ""
+        else
+            current = current + ch
+        end if
     end for
+    if current <> "" then result.Push(current)
     return result
 end function
 

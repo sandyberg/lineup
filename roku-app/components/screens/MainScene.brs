@@ -664,26 +664,17 @@ sub launchSelectedCard()
     svcIds = SplitCsv(csv)
     if svcIds.Count() = 0 then return
 
-    installed = []
-    allMatched = []
+    matched = []
     for each svcId in svcIds
         svc = GetServiceById(svcId)
-        if svc <> invalid
-            allMatched.Push(svc)
-            if IsChannelInstalled(svc.rokuChannelId)
-                installed.Push(svc)
-            end if
-        end if
+        if svc <> invalid then matched.Push(svc)
     end for
 
-    if installed.Count() = 1
-        LaunchChannel(installed[0].rokuChannelId, "")
-    else if installed.Count() > 1
-        showServicePicker(installed)
-    else if allMatched.Count() = 1
-        LaunchChannel(allMatched[0].rokuChannelId, "")
-    else if allMatched.Count() > 1
-        showServicePicker(allMatched)
+    if matched.Count() = 0 then return
+    if matched.Count() = 1
+        LaunchChannel(matched[0].rokuChannelId, "")
+    else
+        showServicePicker(matched)
     end if
 end sub
 
@@ -715,18 +706,8 @@ sub showServicePicker(services as Object)
         lbl.font = "font:SmallBoldSystemFont"
         lbl.color = "#FFFFFF"
         lbl.translation = [36, 9]
-        lbl.width = 240
+        lbl.width = 290
         row.AppendChild(lbl)
-
-        installed = IsChannelInstalled(svc.rokuChannelId)
-        if installed
-            tag = CreateObject("roSGNode", "Label")
-            tag.text = "Installed"
-            tag.font = "font:SmallestSystemFont"
-            tag.color = "#30D158"
-            tag.translation = [270, 13]
-            row.AppendChild(tag)
-        end if
 
         m.pickerItemsGroup.AppendChild(row)
         yPos = yPos + 48
