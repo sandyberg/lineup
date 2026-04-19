@@ -93,6 +93,43 @@
             <Group id="serviceListGroup" translation="[60, 150]" />
         </Rectangle>
 
+        <!-- Service picker overlay -->
+        <Rectangle
+            id="pickerOverlay"
+            width="1280"
+            height="720"
+            color="#000000CC"
+            visible="false"
+        >
+            <Rectangle
+                id="pickerBox"
+                width="400"
+                height="300"
+                color="#1A1F2E"
+                translation="[440, 210]"
+                cornerRadius="12"
+            >
+                <Label
+                    id="pickerTitle"
+                    text="Choose a service"
+                    translation="[0, 20]"
+                    width="400"
+                    horizAlign="center"
+                    font="font:MediumBoldSystemFont"
+                    color="#FFFFFF"
+                />
+                <Label
+                    text="Select where to watch"
+                    translation="[0, 52]"
+                    width="400"
+                    horizAlign="center"
+                    font="font:SmallSystemFont"
+                    color="#8B95A5"
+                />
+                <Group id="pickerItemsGroup" translation="[30, 90]" />
+            </Rectangle>
+        </Rectangle>
+
         <EventFetchTask id="fetchTask" />
     </children>
 </component>

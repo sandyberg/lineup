@@ -22,6 +22,12 @@ sub Init()
     m.focusMode = "filter"
     m.sportPills = []
 
+    m.pickerOverlay = m.top.FindNode("pickerOverlay")
+    m.pickerBox = m.top.FindNode("pickerBox")
+    m.pickerItemsGroup = m.top.FindNode("pickerItemsGroup")
+    m.pickerServices = []
+    m.pickerFocusIdx = 0
+
     m.EVENTS_BASE_Y = 120
 
     m.dateLabel.text = GetTodayDateString()
@@ -645,24 +651,116 @@ sub launchSelectedCard()
 
     evt = cardInfo.evt
     if not evt.HasField("availableServices") then return
-    services = evt.availableServices
-    if services = invalid then return
+    rawServices = evt.availableServices
+    if rawServices = invalid then return
 
-    firstSvcId = invalid
-    if Type(services) = "roArray" and services.Count() > 0
-        firstSvcId = services[0]
-    else
-        for each svcId in services
-            firstSvcId = svcId
-            exit for
-        end for
+    svcIds = []
+    for each svcId in rawServices
+        if svcId <> invalid and svcId <> ""
+            svcIds.Push(svcId)
+        end if
+    end for
+    if svcIds.Count() = 0 then return
+
+    installed = []
+    allMatched = []
+    for each svcId in svcIds
+        svc = GetServiceById(svcId)
+        if svc <> invalid
+            allMatched.Push(svc)
+            if IsChannelInstalled(svc.rokuChannelId)
+                installed.Push(svc)
+            end if
+        end if
+    end for
+
+    if installed.Count() = 1
+        LaunchChannel(installed[0].rokuChannelId, "")
+    else if installed.Count() > 1
+        showServicePicker(installed)
+    else if allMatched.Count() = 1
+        LaunchChannel(allMatched[0].rokuChannelId, "")
+    else if allMatched.Count() > 1
+        showServicePicker(allMatched)
     end if
+end sub
 
-    if firstSvcId = invalid or firstSvcId = "" then return
+sub showServicePicker(services as Object)
+    m.pickerServices = services
+    m.pickerFocusIdx = 0
+    m.pickerItemsGroup.RemoveChildrenIndex(m.pickerItemsGroup.GetChildCount(), 0)
 
-    svc = GetServiceById(firstSvcId)
-    if svc = invalid then return
+    yPos = 0
+    for i = 0 to services.Count() - 1
+        svc = services[i]
+        row = CreateObject("roSGNode", "Rectangle")
+        row.width = 340
+        row.height = 42
+        row.color = "#252D3D"
+        row.translation = [0, yPos]
+        row.cornerRadius = 8
 
+        dot = CreateObject("roSGNode", "Rectangle")
+        dot.width = 12
+        dot.height = 12
+        dot.color = svc.color
+        dot.translation = [14, 15]
+        dot.cornerRadius = 6
+        row.AppendChild(dot)
+
+        lbl = CreateObject("roSGNode", "Label")
+        lbl.text = svc.name
+        lbl.font = "font:SmallBoldSystemFont"
+        lbl.color = "#FFFFFF"
+        lbl.translation = [36, 9]
+        lbl.width = 240
+        row.AppendChild(lbl)
+
+        installed = IsChannelInstalled(svc.rokuChannelId)
+        if installed
+            tag = CreateObject("roSGNode", "Label")
+            tag.text = "Installed"
+            tag.font = "font:SmallestSystemFont"
+            tag.color = "#30D158"
+            tag.translation = [270, 13]
+            row.AppendChild(tag)
+        end if
+
+        m.pickerItemsGroup.AppendChild(row)
+        yPos = yPos + 48
+    end for
+
+    boxH = 100 + services.Count() * 48
+    if boxH > 500 then boxH = 500
+    m.pickerBox.height = boxH
+    m.pickerBox.translation = [440, (720 - boxH) / 2]
+
+    m.focusMode = "picker"
+    m.pickerOverlay.visible = true
+    updatePickerFocus()
+end sub
+
+sub updatePickerFocus()
+    for i = 0 to m.pickerItemsGroup.GetChildCount() - 1
+        row = m.pickerItemsGroup.GetChild(i)
+        if i = m.pickerFocusIdx
+            row.color = "#3A4560"
+        else
+            row.color = "#252D3D"
+        end if
+    end for
+end sub
+
+sub hideServicePicker()
+    m.pickerOverlay.visible = false
+    m.focusMode = "cards"
+    updateCardFocus()
+end sub
+
+sub launchPickerSelection()
+    if m.pickerFocusIdx < 0 or m.pickerFocusIdx >= m.pickerServices.Count() then return
+    svc = m.pickerServices[m.pickerFocusIdx]
+    hideServicePicker()
     LaunchChannel(svc.rokuChannelId, "")
 end sub
 
@@ -796,6 +894,10 @@ end function
 
 function OnKeyEvent(key as String, press as Boolean) as Boolean
     if not press then return false
+
+    if m.focusMode = "picker"
+        return handlePickerKeys(key)
+    end if
 
     if key = "options"
         if m.currentTab = 0
@@ -933,4 +1035,30 @@ function handleSettingsKeys(key as String) as Boolean
         return true
     end if
     return false
+end function
+
+function handlePickerKeys(key as String) as Boolean
+    if key = "back"
+        hideServicePicker()
+        return true
+    end if
+    if key = "up"
+        if m.pickerFocusIdx > 0
+            m.pickerFocusIdx = m.pickerFocusIdx - 1
+            updatePickerFocus()
+        end if
+        return true
+    end if
+    if key = "down"
+        if m.pickerFocusIdx < m.pickerServices.Count() - 1
+            m.pickerFocusIdx = m.pickerFocusIdx + 1
+            updatePickerFocus()
+        end if
+        return true
+    end if
+    if key = "OK"
+        launchPickerSelection()
+        return true
+    end if
+    return true
 end function
