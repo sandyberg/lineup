@@ -1,0 +1,87 @@
+function GetApiBaseUrl() as String
+    return "http://YOUR_SERVER_IP:3001"
+end function
+
+function FormatEventTime(isoTimestamp as String) as String
+    if isoTimestamp = "" or isoTimestamp = invalid then return ""
+
+    dt = CreateObject("roDateTime")
+    dt.FromISO8601String(isoTimestamp)
+    dt.ToLocalTime()
+
+    hours = dt.GetHours()
+    minutes = dt.GetMinutes()
+    ampm = "AM"
+
+    if hours >= 12
+        ampm = "PM"
+        if hours > 12 then hours = hours - 12
+    end if
+    if hours = 0 then hours = 12
+
+    minuteStr = minutes.ToStr()
+    if minutes < 10 then minuteStr = "0" + minuteStr
+
+    return hours.ToStr() + ":" + minuteStr + " " + ampm
+end function
+
+function GetTodayDateString() as String
+    dt = CreateObject("roDateTime")
+    dt.ToLocalTime()
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    return days[dt.GetDayOfWeek()] + ", " + months[dt.GetMonth() - 1] + " " + dt.GetDayOfMonth().ToStr()
+end function
+
+function GetStatusColor(status as String) as String
+    if status = "live" then return "#FF3B30"
+    if status = "upcoming" then return "#30D158"
+    return "#8E8E93"
+end function
+
+function GetStatusLabel(status as String) as String
+    if status = "live" then return "LIVE"
+    if status = "upcoming" then return FormatEventTime(m.top.startTime)
+    return "FINAL"
+end function
+
+function IsChannelInstalled(channelId as String) as Boolean
+    dev = CreateObject("roDeviceInfo")
+    return dev.IsChannelInstalled(channelId)
+end function
+
+sub LaunchChannel(channelId as String, params as String)
+    urlTransfer = CreateObject("roUrlTransfer")
+    device = CreateObject("roDeviceInfo")
+    ipAddrs = device.GetIPAddrs()
+
+    ip = ""
+    for each key in ipAddrs
+        ip = ipAddrs[key]
+        exit for
+    end for
+
+    if ip = "" then return
+
+    url = "http://" + ip + ":8060/launch/" + channelId
+    if params <> "" and params <> invalid
+        url = url + "?" + params
+    end if
+
+    urlTransfer.SetUrl(url)
+    urlTransfer.PostFromString("")
+end sub
+
+function ReadRegistrySetting(section as String, key as String) as Dynamic
+    sec = CreateObject("roRegistrySection", section)
+    if sec.Exists(key)
+        return sec.Read(key)
+    end if
+    return invalid
+end function
+
+sub WriteRegistrySetting(section as String, key as String, value as String)
+    sec = CreateObject("roRegistrySection", section)
+    sec.Write(key, value)
+    sec.Flush()
+end sub

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="EventCard" extends="Group" initialFocus="cardBg">
+    <interface>
+        <field id="itemContent" type="node" onChange="onContentChanged" />
+        <field id="focusPercent" type="float" onChange="onFocusChanged" />
+        <field id="width" type="float" value="300" />
+        <field id="height" type="float" value="200" />
+    </interface>
+
+    <script type="text/brightscript" uri="EventCard.brs" />
+    <script type="text/brightscript" uri="pkg:/source/utils.brs" />
+    <script type="text/brightscript" uri="pkg:/source/config.brs" />
+
+    <children>
+        <Rectangle id="cardBg" width="300" height="200" color="#1C1C1E">
+            <!-- Status badge -->
+            <Rectangle id="statusBadge" translation="[12, 12]" height="26" color="#30D158" cornerRadius="4">
+                <Label
+                    id="statusLabel"
+                    translation="[8, 3]"
+                    font="font:SmallestSystemFont"
+                    color="#FFFFFF"
+                    text="UPCOMING"
+                />
+            </Rectangle>
+
+            <!-- Channel label -->
+            <Label
+                id="channelLabel"
+                translation="[200, 15]"
+                width="88"
+                horizAlign="right"
+                font="font:SmallestSystemFont"
+                color="#8E8E93"
+            />
+
+            <!-- Teams / Title -->
+            <Label
+                id="homeLabel"
+                translation="[12, 52]"
+                width="220"
+                font="font:SmallBoldSystemFont"
+                color="#FFFFFF"
+                maxLines="1"
+            />
+            <Label
+                id="awayLabel"
+                translation="[12, 76]"
+                width="220"
+                font="font:SmallBoldSystemFont"
+                color="#FFFFFF"
+                maxLines="1"
+            />
+
+            <!-- Scores -->
+            <Label
+                id="homeScoreLabel"
+                translation="[240, 52]"
+                width="48"
+                horizAlign="right"
+                font="font:SmallBoldSystemFont"
+                color="#FFFFFF"
+            />
+            <Label
+                id="awayScoreLabel"
+                translation="[240, 76]"
+                width="48"
+                horizAlign="right"
+                font="font:SmallBoldSystemFont"
+                color="#FFFFFF"
+            />
+
+            <!-- Sport label -->
+            <Label
+                id="sportLabel"
+                translation="[12, 110]"
+                font="font:SmallestSystemFont"
+                color="#8E8E93"
+            />
+
+            <!-- Service badges row -->
+            <LayoutGroup
+                id="serviceBadges"
+                layoutDirection="horiz"
+                translation="[12, 140]"
+                itemSpacings="[6]"
+            />
+
+            <!-- "Press OK to watch" hint on focus -->
+            <Label
+                id="watchHint"
+                translation="[12, 175]"
+                font="font:SmallestSystemFont"
+                color="#30D158"
+                text="Press OK to watch"
+                visible="false"
+            />
+        </Rectangle>
+
+        <!-- Focus border overlay -->
+        <Rectangle
+            id="focusBorder"
+            width="300"
+            height="200"
+            color="#00000000"
+            visible="false"
+        >
+            <Rectangle width="300" height="3" color="#FFFFFF" />
+            <Rectangle translation="[0, 197]" width="300" height="3" color="#FFFFFF" />
+            <Rectangle width="3" height="200" color="#FFFFFF" />
+            <Rectangle translation="[297, 0]" width="3" height="200" color="#FFFFFF" />
+        </Rectangle>
+    </children>
+</component>

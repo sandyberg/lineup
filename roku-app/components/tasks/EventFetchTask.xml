@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="EventFetchTask" extends="Task">
+    <interface>
+        <field id="content" type="node" />
+        <field id="error" type="string" value="" />
+    </interface>
+
+    <script type="text/brightscript" uri="EventFetchTask.brs" />
+    <script type="text/brightscript" uri="pkg:/source/utils.brs" />
+    <script type="text/brightscript" uri="pkg:/source/config.brs" />
+</component>

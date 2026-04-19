@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="MainScene" extends="Scene">
+    <interface>
+        <function name="handleDeepLink" />
+    </interface>
+
+    <script type="text/brightscript" uri="MainScene.brs" />
+    <script type="text/brightscript" uri="pkg:/source/utils.brs" />
+    <script type="text/brightscript" uri="pkg:/source/config.brs" />
+
+    <children>
+        <Rectangle
+            id="background"
+            width="1280"
+            height="720"
+            color="#0D0D0D"
+        >
+            <!-- Header -->
+            <LayoutGroup
+                id="header"
+                layoutDirection="horiz"
+                horizAlignment="left"
+                vertAlignment="center"
+                translation="[60, 30]"
+                itemSpacings="[0]"
+            >
+                <Label
+                    id="titleLabel"
+                    text="Lineup"
+                    font="font:LargeBoldSystemFont"
+                    color="#FFFFFF"
+                />
+            </LayoutGroup>
+
+            <Label
+                id="dateLabel"
+                translation="[1060, 38]"
+                font="font:SmallSystemFont"
+                color="#8E8E93"
+                horizAlign="right"
+                width="180"
+            />
+
+            <!-- Tab bar -->
+            <LayoutGroup
+                id="tabBar"
+                layoutDirection="horiz"
+                translation="[60, 75]"
+                itemSpacings="[20]"
+            >
+                <ButtonGroup
+                    id="tabButtons"
+                    buttons="[&quot;Guide&quot;, &quot;Settings&quot;]"
+                    focusedColor="#FFFFFF"
+                    color="#8E8E93"
+                    focusedFont="font:SmallBoldSystemFont"
+                    font="font:SmallSystemFont"
+                />
+            </LayoutGroup>
+
+            <!-- Sport filter row -->
+            <LayoutGroup
+                id="filterRow"
+                layoutDirection="horiz"
+                translation="[60, 130]"
+                itemSpacings="[12]"
+            >
+                <LabelList
+                    id="sportFilter"
+                    vertFocusAnimationStyle="floatingFocus"
+                    numRows="1"
+                    itemSize="[120, 40]"
+                    focusedColor="#FFFFFF"
+                    color="#8E8E93"
+                    drawFocusFeedback="true"
+                    focusBitmapBlendColor="#333333"
+                />
+            </LayoutGroup>
+
+            <!-- Events area -->
+            <RowList
+                id="eventRowList"
+                translation="[60, 190]"
+                itemSize="[1160, 220]"
+                numRows="3"
+                rowItemSize="[[300, 200]]"
+                rowItemSpacing="[[16, 0]]"
+                itemSpacing="[0, 16]"
+                showRowLabel="[true]"
+                showRowCounter="[true]"
+                rowLabelColor="#FFFFFF"
+                rowLabelFont="font:MediumBoldSystemFont"
+                focusBitmapBlendColor="#333333"
+                drawFocusFeedback="true"
+                vertFocusAnimationStyle="floatingFocus"
+            />
+
+            <!-- Loading indicator -->
+            <LayoutGroup
+                id="loadingGroup"
+                layoutDirection="vert"
+                horizAlignment="center"
+                vertAlignment="center"
+                translation="[540, 360]"
+                visible="true"
+            >
+                <BusySpinner
+                    id="spinner"
+                    poster="pkg:/images/spinner.png"
+                    visible="true"
+                />
+                <Label
+                    id="loadingLabel"
+                    text="Loading sports..."
+                    font="font:SmallSystemFont"
+                    color="#8E8E93"
+                />
+            </LayoutGroup>
+
+            <!-- Empty state -->
+            <Label
+                id="emptyLabel"
+                text="No events found"
+                translation="[540, 360]"
+                font="font:MediumSystemFont"
+                color="#8E8E93"
+                visible="false"
+            />
+
+            <!-- Settings panel (hidden by default) -->
+            <Rectangle
+                id="settingsPanel"
+                width="1280"
+                height="720"
+                color="#0D0D0D"
+                visible="false"
+            >
+                <Label
+                    id="settingsTitle"
+                    text="Streaming Services"
+                    translation="[60, 30]"
+                    font="font:LargeBoldSystemFont"
+                    color="#FFFFFF"
+                />
+                <Label
+                    id="settingsSubtitle"
+                    text="Select the services you subscribe to"
+                    translation="[60, 75]"
+                    font="font:SmallSystemFont"
+                    color="#8E8E93"
+                />
+                <CheckList
+                    id="serviceCheckList"
+                    translation="[60, 120]"
+                    itemSize="[400, 50]"
+                    numRows="6"
+                    focusedColor="#FFFFFF"
+                    color="#CCCCCC"
+                    checkedIconUri=""
+                    uncheckedIconUri=""
+                    focusBitmapBlendColor="#333333"
+                    drawFocusFeedback="true"
+                />
+            </Rectangle>
+        </Rectangle>
+
+        <!-- API data fetcher task -->
+        <EventFetchTask id="fetchTask" />
+    </children>
+</component>

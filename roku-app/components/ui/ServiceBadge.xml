@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="ServiceBadge" extends="Group">
+    <interface>
+        <field id="serviceName" type="string" value="" onChange="onServiceChanged" />
+        <field id="serviceColor" type="string" value="#333333" onChange="onServiceChanged" />
+    </interface>
+
+    <script type="text/brightscript" uri="ServiceBadge.brs" />
+
+    <children>
+        <Rectangle id="badgeBg" width="72" height="22" color="#333333" cornerRadius="3">
+            <Label
+                id="badgeLabel"
+                translation="[4, 2]"
+                width="64"
+                horizAlign="center"
+                font="font:SmallestSystemFont"
+                color="#FFFFFF"
+            />
+        </Rectangle>
+    </children>
+</component>

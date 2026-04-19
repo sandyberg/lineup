@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Expo / React Native
+.expo/
+dist/
+ios/
+android/
+web-build/
+expo-env.d.ts
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Roku build output
+roku-app/out/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Test coverage
+coverage/
