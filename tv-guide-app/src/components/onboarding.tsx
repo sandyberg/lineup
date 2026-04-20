@@ -97,7 +97,7 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
       <ScrollView
         testID="onboarding-welcome"
         style={styles.screen}
-        contentContainerStyle={[styles.welcomeContent, { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 20 }]}
+        contentContainerStyle={[styles.welcomeContent, { justifyContent: 'flex-start', paddingHorizontal: 24, paddingTop: 16, paddingBottom: 20 }]}
         showsVerticalScrollIndicator={false}
       >
         {content}
