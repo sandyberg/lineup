@@ -147,8 +147,13 @@ describe('PreferencesProvider context sharing', () => {
     expect(sharedToggle).toHaveBeenCalledTimes(1);
   });
 
-  it('PreferencesProvider is exported and is a function', () => {
+  it('PreferencesProvider calls usePreferencesState and renders via createElement', () => {
     const { PreferencesProvider } = require('@/hooks/use-preferences');
-    expect(typeof PreferencesProvider).toBe('function');
+
+    mockState = {};
+    const result = PreferencesProvider({ children: 'child' });
+
+    expect(result).toBeNull();
+    expect(mockEffectCallback).toBeDefined();
   });
 });
