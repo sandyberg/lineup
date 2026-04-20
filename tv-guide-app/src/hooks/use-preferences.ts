@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { SportCategory, UserPreferences } from '@/lib/types';
 
@@ -51,7 +51,16 @@ async function savePreferences(prefs: UserPreferences): Promise<void> {
   } catch {}
 }
 
-export function usePreferences() {
+interface PreferencesContextValue {
+  prefs: UserPreferences;
+  loaded: boolean;
+  updateServices: (services: string[]) => void;
+  toggleService: (serviceId: string) => void;
+  setSport: (sport: SportCategory) => void;
+  completeOnboarding: () => void;
+}
+
+function usePreferencesState(): PreferencesContextValue {
   const [prefs, setPrefs] = useState<UserPreferences>(defaultPreferences);
   const [loaded, setLoaded] = useState(false);
 
@@ -99,4 +108,17 @@ export function usePreferences() {
   }, []);
 
   return { prefs, loaded, updateServices, toggleService, setSport, completeOnboarding };
+}
+
+const PreferencesContext = createContext<PreferencesContextValue | null>(null);
+
+export function PreferencesProvider({ children }: { children: React.ReactNode }) {
+  const value = usePreferencesState();
+  return React.createElement(PreferencesContext.Provider, { value }, children);
+}
+
+export function usePreferences(): PreferencesContextValue {
+  const ctx = useContext(PreferencesContext);
+  if (ctx) return ctx;
+  return usePreferencesState();
 }

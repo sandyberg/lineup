@@ -82,6 +82,7 @@ export default function GuideScreen() {
     emptySubtext: { fontSize: isMobile ? 16 : 20 },
     emptyIcon: { width: isMobile ? 60 : 80, height: isMobile ? 60 : 80, borderRadius: isMobile ? 30 : 40 },
     emptyIconText: { fontSize: isMobile ? 28 : 36 },
+    emptyContainer: { paddingBottom: landscapeMobile ? 0 : isMobile ? 20 : 120 },
   }), [sizes, isMobile, tabBarHeight, landscapeMobile]);
 
   if (!loaded || loading) {
@@ -119,7 +120,7 @@ export default function GuideScreen() {
   );
 
   const eventContent = grouped.length === 0 ? (
-    <View style={styles.emptyContainer}>
+    <View style={[styles.emptyContainer, dynamicStyles.emptyContainer]}>
       <View style={[styles.emptyIconContainer, dynamicStyles.emptyIcon]}>
         <Text style={[styles.emptyIconText, dynamicStyles.emptyIconText]}>—</Text>
       </View>
@@ -146,7 +147,8 @@ export default function GuideScreen() {
     </>
   );
 
-  const useFullScroll = Platform.OS === 'web' && isLandscape && height < 500;
+  const useFullScroll = Platform.OS === 'web' && isLandscape && height < 500 && grouped.length > 0;
+  const isEmpty = grouped.length === 0;
 
   return (
     <View testID="guide-screen" style={styles.container}>
@@ -160,7 +162,7 @@ export default function GuideScreen() {
         <>
           {headerBlock}
           {filterBlock}
-          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.scrollView} contentContainerStyle={isEmpty ? styles.scrollViewCentered : undefined} showsVerticalScrollIndicator={false}>
             {eventContent}
           </ScrollView>
         </>
@@ -198,6 +200,9 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  scrollViewCentered: {
+    flexGrow: 1,
+  },
   scrollPadding: {
     height: 120,
   },
@@ -222,7 +227,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
-    paddingBottom: 80,
   },
   emptyIconContainer: {
     borderWidth: 2,

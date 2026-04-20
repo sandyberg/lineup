@@ -3,7 +3,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import AppTabs from '@/components/app-tabs';
 import { Onboarding } from '@/components/onboarding';
-import { usePreferences } from '@/hooks/use-preferences';
+import { PreferencesProvider, usePreferences } from '@/hooks/use-preferences';
 
 const NavyTheme = {
   ...DarkTheme,
@@ -15,26 +15,30 @@ const NavyTheme = {
   },
 };
 
-export default function TabLayout() {
+function AppContent() {
   const { prefs, loaded, toggleService, completeOnboarding } = usePreferences();
 
   if (loaded && !prefs.onboardingComplete) {
     return (
-      <ThemeProvider value={NavyTheme}>
-        <View style={styles.fullScreen}>
-          <Onboarding
-            selectedServices={prefs.selectedServices}
-            onToggleService={toggleService}
-            onComplete={completeOnboarding}
-          />
-        </View>
-      </ThemeProvider>
+      <View style={styles.fullScreen}>
+        <Onboarding
+          selectedServices={prefs.selectedServices}
+          onToggleService={toggleService}
+          onComplete={completeOnboarding}
+        />
+      </View>
     );
   }
 
+  return <AppTabs />;
+}
+
+export default function TabLayout() {
   return (
     <ThemeProvider value={NavyTheme}>
-      <AppTabs />
+      <PreferencesProvider>
+        <AppContent />
+      </PreferencesProvider>
     </ThemeProvider>
   );
 }

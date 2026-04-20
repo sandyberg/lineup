@@ -28,6 +28,9 @@ jest.mock('react', () => ({
     mockEffectCallback = fn;
   },
   useCallback: (fn: any) => fn,
+  createContext: () => ({ _value: null }),
+  useContext: () => null,
+  createElement: () => null,
 }));
 
 jest.mock('react-native', () => ({
