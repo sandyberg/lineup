@@ -164,3 +164,12 @@ jobs:
       - name: Server coverage (99%+ lines, 97%+ branches)
         run: npx jest --coverage
         working-directory: tv-guide-app/server
+
+  deploy:
+    name: Deploy to Render
+    needs: [app-unit, server-unit, server-integration, e2e, coverage]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: curl -s "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
