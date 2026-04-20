@@ -166,12 +166,16 @@ function normalizeESPNEvent(event: ESPNEvent, config: { league: string; sport: s
 
 function getDateStrings(): string[] {
   const now = new Date();
+  const yesterday = new Date(now.getTime() - 86_400_000)
+    .toISOString()
+    .split('T')[0]
+    .replace(/-/g, '');
   const today = now.toISOString().split('T')[0].replace(/-/g, '');
   const tomorrow = new Date(now.getTime() + 86_400_000)
     .toISOString()
     .split('T')[0]
     .replace(/-/g, '');
-  return [today, tomorrow];
+  return [yesterday, today, tomorrow];
 }
 
 export async function fetchESPNEvents(): Promise<NormalizedEvent[]> {
@@ -244,13 +248,14 @@ function normalizeSportsDBEvent(event: SportsDBEvent, channel: string): Normaliz
 }
 
 export async function fetchSportsDBEvents(): Promise<NormalizedEvent[]> {
+  const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
   const today = new Date().toISOString().split('T')[0];
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().split('T')[0];
 
   const results: NormalizedEvent[] = [];
 
   for (const sportQuery of SPORTSDB_SPORT_QUERIES) {
-    for (const date of [today, tomorrow]) {
+    for (const date of [yesterday, today, tomorrow]) {
       const url = `${SPORTSDB_BASE}/eventsday.php?d=${date}&s=${encodeURIComponent(sportQuery)}`;
       const data = await fetchJSON<{ events: SportsDBEvent[] | null }>(url);
       if (!data?.events) continue;
