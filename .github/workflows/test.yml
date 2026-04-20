@@ -11,6 +11,7 @@ on:
     paths:
       - 'tv-guide-app/**'
       - '.github/workflows/test.yml'
+  workflow_dispatch:
 
 jobs:
   app-unit:
