@@ -57,6 +57,13 @@
     "name": "Lineup",
     "slug": "lineup",
     "scheme": "lineup",
-    "description": "Live Sports TV Guide"
+    "description": "Live Sports TV Guide",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b7530971-c92b-4646-8bd7-1ce695b6088c"
+      }
+    },
+    "owner": "joemoded"
   }
 }
