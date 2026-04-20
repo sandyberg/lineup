@@ -1,6 +1,5 @@
 import cors from 'cors';
 import express from 'express';
-import rateLimit from 'express-rate-limit';
 import { InMemoryCache } from './cache';
 import { getServicesForChannel } from './channel-mapping';
 import { fetchAllEvents, NormalizedEvent } from './sports-api';
@@ -27,15 +26,27 @@ app.use(cors({
 
 app.set('trust proxy', 1);
 
-const apiLimiter = rateLimit({
-  windowMs: 60_000,
-  max: 60,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many requests, please try again later.' },
-});
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW = 60_000;
+const RATE_LIMIT_MAX = 60;
 
-app.use('/api/', apiLimiter);
+app.use('/api/', (req, res, next) => {
+  const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return next();
+  }
+
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) {
+    res.status(429).json({ error: 'Too many requests, please try again later.' });
+    return;
+  }
+  next();
+});
 
 const API_KEY = process.env.LINEUP_API_KEY;
 if (API_KEY) {

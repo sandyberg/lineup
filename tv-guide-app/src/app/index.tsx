@@ -8,7 +8,6 @@ import {
   View,
 } from 'react-native';
 import { EventRow } from '@/components/event-row';
-import { Onboarding } from '@/components/onboarding';
 import { SportFilter } from '@/components/sport-filter';
 import { ServicePickerModal } from '@/components/service-picker-modal';
 import { fetchEvents, groupEventsByTime, groupEventsBySport } from '@/lib/api';
@@ -23,7 +22,7 @@ export default function GuideScreen() {
   const [pickerVisible, setPickerVisible] = useState(false);
   const [pickerServices, setPickerServices] = useState<StreamingService[]>([]);
   const [pickerEvent, setPickerEvent] = useState<SportEvent | null>(null);
-  const { prefs, setSport, toggleService, completeOnboarding, loaded } = usePreferences();
+  const { prefs, setSport, loaded } = usePreferences();
   const sizes = useResponsive();
 
   const showServicePicker = useCallback((services: StreamingService[], event: SportEvent) => {
@@ -90,16 +89,6 @@ export default function GuideScreen() {
         <ActivityIndicator size="large" color="#FFFFFF" />
         <Text style={styles.loadingText}>Loading sports...</Text>
       </View>
-    );
-  }
-
-  if (!prefs.onboardingComplete) {
-    return (
-      <Onboarding
-        selectedServices={prefs.selectedServices}
-        onToggleService={toggleService}
-        onComplete={completeOnboarding}
-      />
     );
   }
 

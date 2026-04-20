@@ -15,7 +15,6 @@
     "@types/node": "^22.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.0",
-    "express-rate-limit": "^8.3.2",
     "typescript": "~5.9.2"
   },
   "devDependencies": {
