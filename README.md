@@ -51,7 +51,7 @@ Lineup is a TV-first app that shows live and upcoming sports events across your 
 ## Hosting
 
 - **Backend API** -- Deployed on [Render](https://render.com) at `https://lineup-api-31li.onrender.com`
-- **Privacy Policy** -- Hosted on GitHub Pages at [mitchsandberg.github.io/lineup](https://mitchsandberg.github.io/lineup/)
+- **Privacy Policy** -- Hosted on GitHub Pages at [sandyberg.github.io/lineup](https://sandyberg.github.io/lineup/)
 - Production apps use the hosted API; local development falls back to `localhost:3001`
 
 ## Project Structure
@@ -149,7 +149,7 @@ The backend server aggregates data from multiple sports APIs, normalizes it, ded
 
 ## Privacy
 
-Lineup collects no personal data. Preferences are stored locally on the device. See the full [privacy policy](https://mitchsandberg.github.io/lineup/).
+Lineup collects no personal data. Preferences are stored locally on the device. See the full [privacy policy](https://sandyberg.github.io/lineup/).
 
 ## License
 
