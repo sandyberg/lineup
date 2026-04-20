@@ -36,59 +36,79 @@ export function Onboarding({ selectedServices, onToggleService, onComplete }: On
 
 function WelcomeStep({ onNext }: { onNext: () => void }) {
   const btnScale = useRef(new Animated.Value(1)).current;
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const isMobile = width < 600;
+  const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
+
+  const content = (
+    <>
+      <Text style={[styles.logoText, isMobile && { fontSize: 44 }, isLandscapeMobile && { fontSize: 36 }]}>Lineup</Text>
+      <Text style={[styles.tagline, isMobile && { fontSize: 18, marginBottom: 32 }, isLandscapeMobile && { fontSize: 16, marginBottom: 16 }]}>Live Sports TV Guide</Text>
+
+      <View style={[styles.featureList, isLandscapeMobile && { gap: 12, marginBottom: 24 }]}>
+        <FeatureRow
+          number="1"
+          title="See what's on"
+          desc="Live and upcoming games across all your streaming services"
+        />
+        <FeatureRow
+          number="2"
+          title="Tap to watch"
+          desc="Press select on any game to instantly open the right streaming app"
+        />
+        <FeatureRow
+          number="3"
+          title="Never miss a game"
+          desc="NFL, NBA, MLB, NHL, Soccer, and more — all in one place"
+        />
+      </View>
+
+      <Animated.View style={{ transform: [{ scale: btnScale }] }}>
+        <Pressable
+          testID="onboarding-get-started"
+          onPress={onNext}
+          onFocus={() =>
+            Animated.spring(btnScale, {
+              toValue: 1.05,
+              useNativeDriver: true,
+              friction: 8,
+            }).start()
+          }
+          onBlur={() =>
+            Animated.spring(btnScale, {
+              toValue: 1,
+              useNativeDriver: true,
+              friction: 8,
+            }).start()
+          }
+          style={({ focused }) => [
+            styles.ctaButton,
+            focused && styles.ctaButtonFocused,
+          ]}
+        >
+          <Text style={styles.ctaText}>Get Started</Text>
+        </Pressable>
+      </Animated.View>
+    </>
+  );
+
+  if (isLandscapeMobile) {
+    return (
+      <ScrollView
+        testID="onboarding-welcome"
+        style={styles.screen}
+        contentContainerStyle={[styles.welcomeContent, { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 20 }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {content}
+      </ScrollView>
+    );
+  }
 
   return (
     <View style={styles.screen} testID="onboarding-welcome">
       <View style={[styles.welcomeContent, isMobile && { paddingHorizontal: 24 }]}>
-        <Text style={[styles.logoText, isMobile && { fontSize: 44 }]}>Lineup</Text>
-        <Text style={[styles.tagline, isMobile && { fontSize: 18, marginBottom: 32 }]}>Live Sports TV Guide</Text>
-
-        <View style={styles.featureList}>
-          <FeatureRow
-            number="1"
-            title="See what's on"
-            desc="Live and upcoming games across all your streaming services"
-          />
-          <FeatureRow
-            number="2"
-            title="Tap to watch"
-            desc="Press select on any game to instantly open the right streaming app"
-          />
-          <FeatureRow
-            number="3"
-            title="Never miss a game"
-            desc="NFL, NBA, MLB, NHL, Soccer, and more — all in one place"
-          />
-        </View>
-
-        <Animated.View style={{ transform: [{ scale: btnScale }] }}>
-          <Pressable
-            testID="onboarding-get-started"
-            onPress={onNext}
-            onFocus={() =>
-              Animated.spring(btnScale, {
-                toValue: 1.05,
-                useNativeDriver: true,
-                friction: 8,
-              }).start()
-            }
-            onBlur={() =>
-              Animated.spring(btnScale, {
-                toValue: 1,
-                useNativeDriver: true,
-                friction: 8,
-              }).start()
-            }
-            style={({ focused }) => [
-              styles.ctaButton,
-              focused && styles.ctaButtonFocused,
-            ]}
-          >
-            <Text style={styles.ctaText}>Get Started</Text>
-          </Pressable>
-        </Animated.View>
+        {content}
       </View>
     </View>
   );
@@ -119,14 +139,17 @@ function ServicePickerStep({
 }) {
   const btnScale = useRef(new Animated.Value(1)).current;
 
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const isMobile = width < 600;
+  const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
   const scrollStyle = Platform.OS === 'web'
     ? [styles.screen, { height: '100vh' as unknown as number }]
     : styles.screen;
 
+  const topPadding = isLandscapeMobile ? 16 : isMobile ? 60 : Math.max(80, height * 0.12);
+
   return (
-    <ScrollView testID="onboarding-service-picker" style={scrollStyle} contentContainerStyle={[styles.pickerContent, isMobile && { paddingHorizontal: 20, paddingTop: 60 }]} showsVerticalScrollIndicator={false}>
+    <ScrollView testID="onboarding-service-picker" style={scrollStyle} contentContainerStyle={[styles.pickerContent, { paddingTop: topPadding }, isMobile && { paddingHorizontal: 20 }]} showsVerticalScrollIndicator={false}>
         <Text style={[styles.stepTitle, isMobile && { fontSize: 26 }]}>Pick your streaming services</Text>
         <Text style={styles.stepSubtitle}>
           Lineup will only show games available on your services. You can change this anytime in Settings.
