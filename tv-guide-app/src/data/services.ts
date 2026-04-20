@@ -9,7 +9,7 @@ export const STREAMING_SERVICES: StreamingService[] = [
     deepLinks: {
       tvos: 'https://tv.youtube.com',
       android: 'intent://tv.youtube.com#Intent;package=com.google.android.apps.youtube.unplugged;scheme=https;end',
-      web: 'https://tv.youtube.com',
+      web: 'https://tv.youtube.com/live',
     },
   },
   {
@@ -119,7 +119,7 @@ export const STREAMING_SERVICES: StreamingService[] = [
     deepLinks: {
       tvos: 'https://tv.youtube.com',
       android: 'intent://tv.youtube.com#Intent;package=com.google.android.apps.youtube.unplugged;scheme=https;end',
-      web: 'https://tv.youtube.com/learn/nflsundayticket/',
+      web: 'https://tv.youtube.com/live',
     },
   },
 ];

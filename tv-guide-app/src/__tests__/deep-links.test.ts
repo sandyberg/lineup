@@ -38,7 +38,7 @@ describe('Deep link configuration', () => {
     });
 
     it('has a web link', () => {
-      expect(service.deepLinks.web).toBe('https://tv.youtube.com');
+      expect(service.deepLinks.web).toBe('https://tv.youtube.com/live');
     });
   });
 
