@@ -89,8 +89,12 @@ describe('Deep link configuration', () => {
       expect(service.deepLinks.tvos).toBe('aiv://');
     });
 
-    it('has an Android intent', () => {
-      expect(service.deepLinks.android).toContain('amazon');
+    it('uses the public Prime Video app package on Android', () => {
+      expect(service.deepLinks.android).toContain('com.amazon.avod.thirdpartyclient');
+    });
+
+    it('uses the Fire TV / Android TV living room package', () => {
+      expect(service.deepLinks.androidTv).toContain('com.amazon.amazonvideo.livingroom');
     });
   });
 

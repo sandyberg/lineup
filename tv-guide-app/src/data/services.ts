@@ -52,7 +52,9 @@ export const STREAMING_SERVICES: StreamingService[] = [
     group: 'major',
     deepLinks: {
       tvos: 'aiv://',
-      android: 'intent://watch.amazon.com#Intent;package=com.amazon.avod;scheme=https;end',
+      android:
+        'intent://watch.amazon.com#Intent;package=com.amazon.avod.thirdpartyclient;scheme=https;end',
+      androidTv: 'intent:#Intent;package=com.amazon.amazonvideo.livingroom;end',
       web: 'https://www.amazon.com/gp/video/storefront',
     },
   },

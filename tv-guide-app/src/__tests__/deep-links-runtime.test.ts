@@ -40,8 +40,9 @@ describe('launchStreamingApp', () => {
     expect(result).toBe(true);
   });
 
-  it('falls back to web deep link when canOpenURL returns false', async () => {
-    (Platform as any).OS = 'web';
+  it('falls back to web when canOpenURL returns false on native (non-TV)', async () => {
+    (Platform as any).OS = 'ios';
+    (Platform as any).isTV = false;
     (Linking.canOpenURL as jest.Mock).mockResolvedValue(false);
     const webUrl = SERVICE_MAP['espn-plus'].deepLinks.web;
 
@@ -51,9 +52,9 @@ describe('launchStreamingApp', () => {
     expect(result).toBe(true);
   });
 
-  it('returns false when openURL throws and no web fallback', async () => {
+  it('returns false when openURL fails and web fallback also fails', async () => {
     (Platform as any).OS = 'web';
-    (Linking.canOpenURL as jest.Mock).mockRejectedValue(new Error('fail'));
+    (Linking.openURL as jest.Mock).mockRejectedValue(new Error('fail'));
 
     const result = await launchStreamingApp('youtube-tv');
     expect(result).toBe(false);
@@ -87,8 +88,20 @@ describe('launchStreamingApp', () => {
     (SERVICE_MAP as any)[testId] = origService;
   });
 
+  it('opens intent URLs without requiring canOpenURL to be true', async () => {
+    (Platform as any).OS = 'android';
+    (Platform as any).isTV = false;
+    (Linking.canOpenURL as jest.Mock).mockResolvedValue(false);
+
+    const result = await launchStreamingApp('youtube-tv');
+
+    expect(Linking.openURL).toHaveBeenCalledWith(SERVICE_MAP['youtube-tv'].deepLinks.android);
+    expect(result).toBe(true);
+  });
+
   it('returns false when canOpenURL is false and no web fallback exists', async () => {
     (Platform as any).OS = 'android';
+    (Platform as any).isTV = false;
     (Linking.canOpenURL as jest.Mock).mockResolvedValue(false);
     const testId = Object.keys(SERVICE_MAP)[0];
     const origService = SERVICE_MAP[testId];
@@ -103,8 +116,57 @@ describe('launchStreamingApp', () => {
     (SERVICE_MAP as any)[testId] = origService;
   });
 
+  it('uses androidTv for Prime Video on Android TV', async () => {
+    (Platform as any).OS = 'android';
+    (Platform as any).isTV = true;
+
+    const result = await launchStreamingApp('prime-video');
+
+    expect(Linking.openURL).toHaveBeenCalledWith(
+      SERVICE_MAP['prime-video'].deepLinks.androidTv,
+    );
+    expect(result).toBe(true);
+  });
+
+  it('does not fall back to web on TV when canOpenURL is false', async () => {
+    (Platform as any).OS = 'ios';
+    (Platform as any).isTV = true;
+    (Linking.canOpenURL as jest.Mock).mockResolvedValue(false);
+
+    const result = await launchStreamingApp('espn-plus');
+
+    expect(Linking.openURL).not.toHaveBeenCalled();
+    expect(result).toBe(false);
+  });
+
+  it('uses web URL on unrecognized native OS (e.g. future platform)', async () => {
+    (Platform as any).OS = 'windows';
+    (Platform as any).isTV = false;
+
+    const result = await launchStreamingApp('youtube-tv');
+
+    expect(Linking.openURL).toHaveBeenCalledWith(SERVICE_MAP['youtube-tv'].deepLinks.web);
+    expect(result).toBe(true);
+  });
+
+  it('recovers with web URL when first openURL throws on iOS', async () => {
+    (Platform as any).OS = 'ios';
+    (Platform as any).isTV = false;
+    (Linking.openURL as jest.Mock)
+      .mockRejectedValueOnce(new Error('simulator'))
+      .mockResolvedValue(undefined);
+
+    const result = await launchStreamingApp('espn-plus');
+
+    expect(Linking.openURL).toHaveBeenCalledTimes(2);
+    expect(Linking.openURL).toHaveBeenNthCalledWith(1, SERVICE_MAP['espn-plus'].deepLinks.tvos);
+    expect(Linking.openURL).toHaveBeenNthCalledWith(2, SERVICE_MAP['espn-plus'].deepLinks.web);
+    expect(result).toBe(true);
+  });
+
   afterEach(() => {
     (Platform as any).OS = 'web';
+    (Platform as any).isTV = false;
   });
 });
 
@@ -133,7 +195,7 @@ describe('launchStreamingApp on mobile web', () => {
     });
   }
 
-  it('uses window.open on iPhone', async () => {
+  it('uses window.open with app deep link on iPhone (not storefront web)', async () => {
     setMobileUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)');
     const mockOpen = jest.fn();
     (global as any).window = { open: mockOpen };
@@ -141,11 +203,11 @@ describe('launchStreamingApp on mobile web', () => {
     const result = await launchStreamingApp('youtube-tv');
 
     expect(result).toBe(true);
-    expect(mockOpen).toHaveBeenCalledWith(SERVICE_MAP['youtube-tv'].deepLinks.web, '_blank');
+    expect(mockOpen).toHaveBeenCalledWith(SERVICE_MAP['youtube-tv'].deepLinks.tvos, '_blank');
     expect(Linking.openURL).not.toHaveBeenCalled();
   });
 
-  it('uses window.open on Android', async () => {
+  it('uses window.open with Android intent on mobile Chrome (not website)', async () => {
     setMobileUserAgent('Mozilla/5.0 (Linux; Android 14; Pixel 8)');
     const mockOpen = jest.fn();
     (global as any).window = { open: mockOpen };
@@ -153,8 +215,45 @@ describe('launchStreamingApp on mobile web', () => {
     const result = await launchStreamingApp('peacock');
 
     expect(result).toBe(true);
-    expect(mockOpen).toHaveBeenCalledWith(SERVICE_MAP['peacock'].deepLinks.web, '_blank');
+    expect(mockOpen).toHaveBeenCalledWith(SERVICE_MAP['peacock'].deepLinks.android, '_blank');
     expect(Linking.openURL).not.toHaveBeenCalled();
+  });
+
+  it('uses app deep link for iPad (tablet) mobile browser', async () => {
+    setMobileUserAgent(
+      'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15',
+    );
+    const mockOpen = jest.fn();
+    (global as any).window = { open: mockOpen };
+
+    await launchStreamingApp('hulu-live');
+
+    expect(mockOpen).toHaveBeenCalledWith(SERVICE_MAP['hulu-live'].deepLinks.tvos, '_blank');
+  });
+
+  it('uses android or tvos fallback for mobile web UAs without Android or Apple tokens', async () => {
+    setMobileUserAgent(
+      'Mozilla/5.0 (compatible; BlackBerry 10; Touch) AppleWebKit/537.36',
+    );
+    const mockOpen = jest.fn();
+    (global as any).window = { open: mockOpen };
+
+    await launchStreamingApp('peacock');
+
+    expect(mockOpen).toHaveBeenCalledWith(
+      SERVICE_MAP['peacock'].deepLinks.android ?? SERVICE_MAP['peacock'].deepLinks.tvos,
+      '_blank',
+    );
+  });
+
+  it('uses Linking.openURL when mobile web has no window.open', async () => {
+    setMobileUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)');
+    (global as any).window = {};
+
+    const result = await launchStreamingApp('youtube-tv');
+
+    expect(result).toBe(true);
+    expect(Linking.openURL).toHaveBeenCalledWith(SERVICE_MAP['youtube-tv'].deepLinks.tvos);
   });
 
   it('uses Linking.openURL on desktop web (not mobile)', async () => {

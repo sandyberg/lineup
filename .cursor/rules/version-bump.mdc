@@ -1,0 +1,13 @@
+---
+description: Bump versionCode before building app binaries
+globs: tv-guide-app/app.json
+alwaysApply: false
+---
+
+# Version Bump Rule
+
+When building an APK or AAB (via `eas build` or any production build command):
+
+1. **Always increment `android.versionCode`** in `tv-guide-app/app.json` before starting the build
+2. `versionCode` must be strictly greater than the previous value — both Google Play and Amazon Appstore reject duplicate codes
+3. If the changes warrant it, also bump `version` (semver string) — use patch for fixes, minor for features

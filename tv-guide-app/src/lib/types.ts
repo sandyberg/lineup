@@ -23,6 +23,8 @@ export interface StreamingService {
   deepLinks: {
     tvos?: string;
     android?: string;
+    /** Android TV / Fire TV — never fall back to web on TV */
+    androidTv?: string;
     web?: string;
   };
 }
