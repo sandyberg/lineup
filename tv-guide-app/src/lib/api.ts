@@ -50,7 +50,9 @@ function toSportEvent(event: APIEvent): SportEvent {
     homeScore: event.homeScore,
     awayScore: event.awayScore,
     thumbnail: event.thumbnail,
-    availableServices: channelEntry?.serviceIds ?? event.availableServices ?? [],
+    availableServices: event.availableServices?.length
+      ? event.availableServices
+      : channelEntry?.serviceIds ?? [],
   };
 }
 
@@ -192,6 +194,16 @@ export function groupEventsBySport(events: SportEvent[]): GroupedEvents[] {
       label: SPORT_LABELS[sport] ?? sport,
       events: bySport[sport],
     }));
+}
+
+export function formatEventTime(startTime: string, now: Date = new Date()): string {
+  const start = new Date(startTime);
+  const time = start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  if (start.toDateString() === now.toDateString()) return time;
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (start.toDateString() === tomorrow.toDateString()) return `Tomorrow ${time}`;
+  return `${start.toLocaleDateString([], { weekday: 'short' })} ${time}`;
 }
 
 export function filterEvents(

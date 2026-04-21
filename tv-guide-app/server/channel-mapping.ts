@@ -12,6 +12,8 @@ const CHANNELS: ChannelEntry[] = [
   { id: 'espn-plus', name: 'ESPN+', serviceIds: ['espn-plus'] },
   { id: 'espn-ppv', name: 'ESPN PPV', serviceIds: ['espn-plus'] },
   { id: 'espn-ppv-alt', name: 'ESPN+ PPV', serviceIds: ['espn-plus'] },
+  { id: 'espn-unlmtd', name: 'ESPN Unlmtd', serviceIds: ['espn-plus'] },
+  { id: 'espn-unlimited', name: 'ESPN Unlimited', serviceIds: ['espn-plus'] },
   { id: 'abc', name: 'ABC', serviceIds: ['youtube-tv', 'hulu-live'] },
   { id: 'fox', name: 'FOX', serviceIds: ['youtube-tv', 'hulu-live'] },
   { id: 'fs1', name: 'FS1', serviceIds: ['youtube-tv', 'hulu-live'] },

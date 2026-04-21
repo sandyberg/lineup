@@ -90,6 +90,13 @@ export async function getEvents(): Promise<EnrichedEvent[]> {
 
   const enriched = raw.map((event) => {
     const services = [...getServicesForChannel(event.channel)];
+    if (event.regionalChannels) {
+      for (const rc of event.regionalChannels) {
+        for (const svc of getServicesForChannel(rc.channel)) {
+          if (!services.includes(svc)) services.push(svc);
+        }
+      }
+    }
     const leagueService = LEAGUE_SERVICE_MAP[event.sport];
     if (leagueService && !services.includes(leagueService)) {
       services.push(leagueService);

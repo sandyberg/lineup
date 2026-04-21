@@ -30,6 +30,21 @@ const mockEvents = [
     awayTeamId: '10',
   },
   {
+    id: 'espn-5',
+    title: 'Orioles vs Royals',
+    sport: 'mlb',
+    league: 'MLB',
+    channel: 'FS1',
+    startTime: '2026-04-20T23:10:00Z',
+    status: 'live' as const,
+    homeTeam: 'Kansas City Royals',
+    awayTeam: 'Baltimore Orioles',
+    regionalChannels: [
+      { type: 'national' as const, channel: 'FS1' },
+      { type: 'home' as const, channel: 'MASN' },
+    ],
+  },
+  {
     id: 'espn-3',
     title: 'UFC 315: Main Card',
     sport: 'mma',
@@ -117,6 +132,15 @@ describe('GET /api/events', () => {
       expect(['upcoming', 'live', 'final']).toContain(event.status);
       expect(Array.isArray(event.availableServices)).toBe(true);
     }
+  });
+
+  it('includes services from regional channels in enrichment', async () => {
+    const res = await request(app).get('/api/events');
+    const orioles = res.body.events.find((e: any) => e.id === 'espn-5');
+    expect(orioles).toBeDefined();
+    expect(orioles.availableServices).toContain('youtube-tv');
+    expect(orioles.availableServices).toContain('hulu-live');
+    expect(orioles.availableServices).toContain('mlb-tv');
   });
 
   it('caches results on second call', async () => {

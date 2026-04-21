@@ -111,6 +111,50 @@ describe('groupEventsBySport', () => {
   });
 });
 
+describe('formatEventTime', () => {
+  it('returns time only for today events', () => {
+    jest.resetModules();
+    const rn = require('react-native');
+    rn.Platform.OS = 'web';
+    const { formatEventTime } = require('@/lib/api');
+
+    const now = new Date('2026-04-20T18:00:00');
+    const todayEvent = '2026-04-20T19:30:00';
+
+    const result = formatEventTime(todayEvent, now);
+    expect(result).toMatch(/7:30\s*PM/);
+    expect(result).not.toMatch(/Tomorrow/);
+  });
+
+  it('prefixes "Tomorrow" for next-day events', () => {
+    jest.resetModules();
+    const rn = require('react-native');
+    rn.Platform.OS = 'web';
+    const { formatEventTime } = require('@/lib/api');
+
+    const now = new Date('2026-04-20T18:00:00');
+    const tomorrowEvent = '2026-04-21T16:00:00';
+
+    const result = formatEventTime(tomorrowEvent, now);
+    expect(result).toMatch(/Tomorrow/);
+    expect(result).toMatch(/4:00\s*PM/);
+  });
+
+  it('prefixes weekday for events beyond tomorrow', () => {
+    jest.resetModules();
+    const rn = require('react-native');
+    rn.Platform.OS = 'web';
+    const { formatEventTime } = require('@/lib/api');
+
+    const now = new Date('2026-04-20T18:00:00');
+    const wednesdayEvent = '2026-04-22T20:00:00';
+
+    const result = formatEventTime(wednesdayEvent, now);
+    expect(result).toMatch(/Wed/);
+    expect(result).toMatch(/8:00\s*PM/);
+  });
+});
+
 describe('toSportEvent (via fetchEvents)', () => {
   it('falls back to empty services when channel has no mapping and no availableServices', async () => {
     jest.resetModules();

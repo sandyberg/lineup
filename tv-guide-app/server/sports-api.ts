@@ -153,7 +153,14 @@ function normalizeESPNEvent(event: ESPNEvent, config: { league: string; sport: s
 
   const broadcasts = comp.broadcasts?.flatMap((b) => b.names) ?? [];
   const geoBroadcasts = comp.geoBroadcasts?.map((b) => b.media?.shortName).filter(Boolean) ?? [];
-  const channel = broadcasts[0] ?? geoBroadcasts[0] ?? '';
+  const allChannels = [...broadcasts, ...geoBroadcasts];
+  const STREAMING_ONLY = new Set([
+    'espn+', 'espn unlmtd', 'espn unlimited', 'espn+ ppv', 'espn ppv',
+    'mlb.tv', 'mlbtv', 'nba league pass', 'nfl+', 'nfl sunday ticket',
+    'peacock', 'paramount+', 'prime video', 'apple tv+', 'apple tv',
+  ]);
+  const tvChannel = allChannels.find((c) => !STREAMING_ONLY.has(c.toLowerCase()));
+  const channel = tvChannel ?? allChannels[0] ?? '';
 
   const regionalChannels: RegionalBroadcast[] = [];
   if (comp.geoBroadcasts) {

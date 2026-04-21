@@ -11,6 +11,7 @@ import { STATUS_COLORS, type ResponsiveSizes } from '@/lib/constants';
 import { SportEvent, StreamingService } from '@/lib/types';
 import { SERVICE_MAP } from '@/data/services';
 import { launchStreamingApp } from '@/lib/deep-links';
+import { formatEventTime } from '@/lib/api';
 
 function getMascotName(fullName: string): string {
   const parts = fullName.trim().split(/\s+/);
@@ -86,11 +87,7 @@ export function EventCard({ event, userServices, sizes, onPress, onShowServicePi
   }, [onPress, primaryService, matchingServices, event, onShowServicePicker, scaleAnim]);
 
   const isLive = event.status === 'live';
-  const startTime = new Date(event.startTime);
-  const timeStr = startTime.toLocaleTimeString([], {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  const timeStr = formatEventTime(event.startTime);
 
   const dynamicStyles = useMemo(() => ({
     wrapper: { width: sizes.cardWidth, marginRight: sizes.cardGap },
