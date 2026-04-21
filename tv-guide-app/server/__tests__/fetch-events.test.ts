@@ -286,6 +286,83 @@ describe('normalizeESPNEvent edge cases', () => {
     expect(evt).toBeDefined();
     expect(evt!.channel).toBe('FOX');
   });
+
+  it('extracts regionalChannels from geoBroadcasts with market info', async () => {
+    const regionalEvent = {
+      id: '555',
+      name: 'Yankees vs Red Sox',
+      date: '2026-04-20T23:00Z',
+      status: { type: { name: 'STATUS_IN_PROGRESS', state: 'in', completed: false } },
+      competitions: [{
+        competitors: [
+          { homeAway: 'home', team: { id: '7', displayName: 'Boston Red Sox', abbreviation: 'BOS' }, score: '3' },
+          { homeAway: 'away', team: { id: '10', displayName: 'New York Yankees', abbreviation: 'NYY' }, score: '5' },
+        ],
+        broadcasts: [{ names: ['ESPN'] }],
+        geoBroadcasts: [
+          { type: { shortName: 'TV' }, market: { type: 'National' }, media: { shortName: 'ESPN' } },
+          { type: { shortName: 'TV' }, market: { type: 'Home' }, media: { shortName: 'NESN' } },
+          { type: { shortName: 'TV' }, market: { type: 'Away' }, media: { shortName: 'YES' } },
+        ],
+      }],
+    };
+    global.fetch = makeFetchMock({ events: [regionalEvent] });
+    const { fetchESPNEvents } = require('../sports-api');
+    const events = await fetchESPNEvents();
+    const evt = events.find((e: NormalizedEvent) => e.id === 'espn-555');
+    expect(evt).toBeDefined();
+    expect(evt!.channel).toBe('ESPN');
+    expect(evt!.regionalChannels).toBeDefined();
+    expect(evt!.regionalChannels).toHaveLength(3);
+    expect(evt!.regionalChannels).toEqual(expect.arrayContaining([
+      { type: 'national', channel: 'ESPN' },
+      { type: 'home', channel: 'NESN' },
+      { type: 'away', channel: 'YES' },
+    ]));
+  });
+
+  it('skips radio geoBroadcasts', async () => {
+    const radioEvent = {
+      id: '444',
+      name: 'Radio Game',
+      date: '2026-04-20T23:00Z',
+      status: { type: { name: 'STATUS_SCHEDULED', state: 'pre', completed: false } },
+      competitions: [{
+        competitors: [],
+        broadcasts: [{ names: ['ESPN'] }],
+        geoBroadcasts: [
+          { type: { shortName: 'TV' }, market: { type: 'Home' }, media: { shortName: 'YES' } },
+          { type: { shortName: 'Radio' }, market: { type: 'Home' }, media: { shortName: 'WFAN' } },
+        ],
+      }],
+    };
+    global.fetch = makeFetchMock({ events: [radioEvent] });
+    const { fetchESPNEvents } = require('../sports-api');
+    const events = await fetchESPNEvents();
+    const evt = events.find((e: NormalizedEvent) => e.id === 'espn-444');
+    expect(evt).toBeDefined();
+    expect(evt!.regionalChannels).toHaveLength(1);
+    expect(evt!.regionalChannels![0].channel).toBe('YES');
+  });
+
+  it('sets regionalChannels to undefined when no geoBroadcasts', async () => {
+    const noGeoBroadcasts = {
+      id: '333',
+      name: 'No Geo',
+      date: '2026-04-20T23:00Z',
+      status: { type: { name: 'STATUS_SCHEDULED', state: 'pre', completed: false } },
+      competitions: [{
+        competitors: [],
+        broadcasts: [{ names: ['ESPN'] }],
+      }],
+    };
+    global.fetch = makeFetchMock({ events: [noGeoBroadcasts] });
+    const { fetchESPNEvents } = require('../sports-api');
+    const events = await fetchESPNEvents();
+    const evt = events.find((e: NormalizedEvent) => e.id === 'espn-333');
+    expect(evt).toBeDefined();
+    expect(evt!.regionalChannels).toBeUndefined();
+  });
 });
 
 describe('SportsDB strChannel null handling', () => {

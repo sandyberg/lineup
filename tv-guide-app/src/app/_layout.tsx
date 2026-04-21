@@ -16,7 +16,7 @@ const NavyTheme = {
 };
 
 function AppContent() {
-  const { prefs, loaded, toggleService, toggleTeam, toggleFavoriteSport, completeOnboarding } = usePreferences();
+  const { prefs, loaded, toggleService, toggleTeam, toggleFavoriteSport, setTvMarket, completeOnboarding } = usePreferences();
 
   if (loaded && !prefs.onboardingComplete) {
     return (
@@ -28,6 +28,8 @@ function AppContent() {
           onToggleTeam={toggleTeam}
           selectedSports={prefs.favoriteSports ?? []}
           onToggleSport={toggleFavoriteSport}
+          selectedMarket={prefs.tvMarket ?? null}
+          onSelectMarket={setTvMarket}
           onComplete={completeOnboarding}
         />
       </View>

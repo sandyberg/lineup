@@ -66,6 +66,7 @@ describe('PreferencesProvider context sharing', () => {
         selectedSport: 'nba' as const,
         favoriteTeams: [],
         favoriteSports: [],
+        tvMarket: null,
         onboardingComplete: true,
       },
       loaded: true,
@@ -74,6 +75,7 @@ describe('PreferencesProvider context sharing', () => {
       toggleTeam: jest.fn(),
       updateTeams: jest.fn(),
       toggleFavoriteSport: jest.fn(),
+      setTvMarket: jest.fn(),
       setSport: jest.fn(),
       completeOnboarding: jest.fn(),
     };
@@ -106,6 +108,7 @@ describe('PreferencesProvider context sharing', () => {
         selectedSport: 'all' as const,
         favoriteTeams: [],
         favoriteSports: [],
+        tvMarket: null,
         onboardingComplete: true,
       },
       loaded: true,
@@ -114,6 +117,7 @@ describe('PreferencesProvider context sharing', () => {
       toggleTeam: jest.fn(),
       updateTeams: jest.fn(),
       toggleFavoriteSport: jest.fn(),
+      setTvMarket: jest.fn(),
       setSport: jest.fn(),
       completeOnboarding: jest.fn(),
     };
@@ -139,6 +143,7 @@ describe('PreferencesProvider context sharing', () => {
         selectedSport: 'all' as const,
         favoriteTeams: [],
         favoriteSports: [],
+        tvMarket: null,
         onboardingComplete: true,
       },
       loaded: true,
@@ -147,6 +152,7 @@ describe('PreferencesProvider context sharing', () => {
       toggleTeam: jest.fn(),
       updateTeams: jest.fn(),
       toggleFavoriteSport: jest.fn(),
+      setTvMarket: jest.fn(),
       setSport: jest.fn(),
       completeOnboarding: jest.fn(),
     };

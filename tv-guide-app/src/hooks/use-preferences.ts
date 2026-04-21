@@ -9,6 +9,7 @@ const defaultPreferences: UserPreferences = {
   selectedSport: 'all',
   favoriteTeams: [],
   favoriteSports: [],
+  tvMarket: null,
   onboardingComplete: false,
 };
 
@@ -61,6 +62,7 @@ interface PreferencesContextValue {
   toggleTeam: (teamId: string) => void;
   updateTeams: (teamIds: string[]) => void;
   toggleFavoriteSport: (sport: string) => void;
+  setTvMarket: (marketId: string | null) => void;
   setSport: (sport: SportCategory) => void;
   completeOnboarding: () => void;
 }
@@ -136,6 +138,14 @@ function usePreferencesState(): PreferencesContextValue {
     });
   }, []);
 
+  const setTvMarket = useCallback((marketId: string | null) => {
+    setPrefs((prev) => {
+      const updated = { ...prev, tvMarket: marketId };
+      savePreferences(updated);
+      return updated;
+    });
+  }, []);
+
   const completeOnboarding = useCallback(() => {
     setPrefs((prev) => {
       const next = { ...prev, onboardingComplete: true };
@@ -144,7 +154,7 @@ function usePreferencesState(): PreferencesContextValue {
     });
   }, []);
 
-  return { prefs, loaded, updateServices, toggleService, toggleTeam, updateTeams, toggleFavoriteSport, setSport, completeOnboarding };
+  return { prefs, loaded, updateServices, toggleService, toggleTeam, updateTeams, toggleFavoriteSport, setTvMarket, setSport, completeOnboarding };
 }
 
 const PreferencesContext = createContext<PreferencesContextValue | null>(null);

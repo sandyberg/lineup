@@ -327,6 +327,45 @@ describe('usePreferences', () => {
     expect(result.favoriteTeams).toContain('7');
   });
 
+  it('returns default tvMarket as null', () => {
+    const { usePreferences } = require('@/hooks/use-preferences');
+    const { prefs } = usePreferences();
+    expect(prefs.tvMarket).toBeNull();
+  });
+
+  it('setTvMarket sets a market', () => {
+    const { usePreferences } = require('@/hooks/use-preferences');
+    const { setTvMarket } = usePreferences();
+
+    setTvMarket('new-york');
+
+    expect(mockSetState).toHaveBeenCalled();
+    const updater = mockSetState.mock.calls[0][0];
+    const result = updater({
+      selectedServices: ['youtube-tv'],
+      selectedSport: 'all',
+      tvMarket: null,
+      onboardingComplete: false,
+    });
+    expect(result.tvMarket).toBe('new-york');
+  });
+
+  it('setTvMarket clears market with null', () => {
+    const { usePreferences } = require('@/hooks/use-preferences');
+    const { setTvMarket } = usePreferences();
+
+    setTvMarket(null);
+
+    const updater = mockSetState.mock.calls[0][0];
+    const result = updater({
+      selectedServices: ['youtube-tv'],
+      selectedSport: 'all',
+      tvMarket: 'boston',
+      onboardingComplete: false,
+    });
+    expect(result.tvMarket).toBeNull();
+  });
+
   it('loadPreferences handles corrupt JSON gracefully', async () => {
     mockLocalStorage['tv-guide-preferences'] = '{invalid json';
 

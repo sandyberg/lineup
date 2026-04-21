@@ -12,6 +12,7 @@ import { useWindowDimensions } from 'react-native';
 import { MAJOR_SERVICES, LEAGUE_SERVICES } from '@/data/services';
 import { getSizesForWidth } from '@/lib/constants';
 import { TeamPicker } from './team-picker';
+import { MarketPicker } from './market-picker';
 
 interface OnboardingProps {
   selectedServices: string[];
@@ -20,10 +21,12 @@ interface OnboardingProps {
   onToggleTeam: (teamId: string) => void;
   selectedSports: string[];
   onToggleSport: (sport: string) => void;
+  selectedMarket: string | null;
+  onSelectMarket: (marketId: string | null) => void;
   onComplete: () => void;
 }
 
-export function Onboarding({ selectedServices, onToggleService, selectedTeams, onToggleTeam, selectedSports, onToggleSport, onComplete }: OnboardingProps) {
+export function Onboarding({ selectedServices, onToggleService, selectedTeams, onToggleTeam, selectedSports, onToggleSport, selectedMarket, onSelectMarket, onComplete }: OnboardingProps) {
   const [step, setStep] = useState(0);
 
   if (step === 0) {
@@ -36,6 +39,16 @@ export function Onboarding({ selectedServices, onToggleService, selectedTeams, o
         selectedServices={selectedServices}
         onToggle={onToggleService}
         onComplete={() => setStep(2)}
+      />
+    );
+  }
+
+  if (step === 2) {
+    return (
+      <MarketPickerStep
+        selectedMarket={selectedMarket}
+        onSelect={onSelectMarket}
+        onComplete={() => setStep(3)}
       />
     );
   }
@@ -235,6 +248,89 @@ function ServicePickerStep({
             </Text>
           </Pressable>
         </Animated.View>
+    </ScrollView>
+  );
+}
+
+function MarketPickerStep({
+  selectedMarket,
+  onSelect,
+  onComplete,
+}: {
+  selectedMarket: string | null;
+  onSelect: (marketId: string | null) => void;
+  onComplete: () => void;
+}) {
+  const btnScale = useRef(new Animated.Value(1)).current;
+  const { width, height } = useWindowDimensions();
+  const isMobile = width < 600;
+  const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
+  const scrollStyle = Platform.OS === 'web'
+    ? [styles.screen, { height: '100vh' as unknown as number }]
+    : styles.screen;
+
+  const topPadding = isLandscapeMobile ? 16 : isMobile ? 60 : Math.max(80, height * 0.12);
+
+  return (
+    <ScrollView
+      testID="onboarding-market-picker"
+      style={scrollStyle}
+      contentContainerStyle={[
+        styles.pickerContent,
+        { paddingTop: topPadding },
+        isMobile && { paddingHorizontal: 20 },
+      ]}
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={[styles.stepTitle, isMobile && { fontSize: 26 }]}>Select your TV market</Text>
+      <Text style={styles.stepSubtitle}>
+        This helps Lineup show local channels like your regional sports network. You can skip this or change it later in Settings.
+      </Text>
+
+      <View style={{ width: '100%', maxWidth: 700 }}>
+        <MarketPicker
+          selectedMarket={selectedMarket}
+          onSelect={onSelect}
+          compact={isMobile}
+        />
+      </View>
+
+      <View style={styles.teamPickerButtons}>
+        <Pressable
+          testID="onboarding-skip-market"
+          onPress={onComplete}
+          style={styles.skipButton}
+        >
+          <Text style={styles.skipText}>Skip</Text>
+        </Pressable>
+
+        <Animated.View style={{ transform: [{ scale: btnScale }] }}>
+          <Pressable
+            testID="onboarding-next-market"
+            onPress={onComplete}
+            onFocus={() =>
+              Animated.spring(btnScale, {
+                toValue: 1.05,
+                useNativeDriver: true,
+                friction: 8,
+              }).start()
+            }
+            onBlur={() =>
+              Animated.spring(btnScale, {
+                toValue: 1,
+                useNativeDriver: true,
+                friction: 8,
+              }).start()
+            }
+            style={({ focused }) => [
+              styles.ctaButton,
+              focused && styles.ctaButtonFocused,
+            ]}
+          >
+            <Text style={styles.ctaText}>Next</Text>
+          </Pressable>
+        </Animated.View>
+      </View>
     </ScrollView>
   );
 }

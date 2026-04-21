@@ -71,6 +71,7 @@ describe('Type definitions', () => {
         id: 'test-service',
         name: 'Test Service',
         color: '#FF0000',
+        group: 'major',
         deepLinks: {
           tvos: 'test://',
           android: 'intent://test',
@@ -119,6 +120,7 @@ describe('Type definitions', () => {
         selectedSport: 'nba',
         favoriteTeams: ['2', '13'],
         favoriteSports: ['golf'],
+        tvMarket: 'new-york',
         onboardingComplete: true,
       };
       expect(prefs.selectedServices).toHaveLength(2);
@@ -133,6 +135,7 @@ describe('Type definitions', () => {
         selectedSport: 'all',
         favoriteTeams: [],
         favoriteSports: [],
+        tvMarket: null,
         onboardingComplete: false,
       };
       expect(prefs.selectedSport).toBe('all');

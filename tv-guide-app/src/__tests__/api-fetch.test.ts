@@ -1,4 +1,4 @@
-import { fetchEvents, fetchTeams } from '@/lib/api';
+import { fetchEvents, fetchTeams, fetchMarkets } from '@/lib/api';
 
 const mockAPIEvents = [
   {
@@ -164,5 +164,60 @@ describe('fetchTeams', () => {
 
     const teams = await fetchTeams();
     expect(teams).toEqual([]);
+  });
+});
+
+describe('fetchMarkets', () => {
+  it('fetches and returns markets array', async () => {
+    const mockMarkets = [
+      { id: 'new-york', label: 'New York' },
+      { id: 'boston', label: 'Boston' },
+    ];
+
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ markets: mockMarkets }),
+    });
+
+    const markets = await fetchMarkets();
+    expect(markets).toHaveLength(2);
+    expect(markets[0].id).toBe('new-york');
+    expect(markets[0].label).toBe('New York');
+  });
+
+  it('returns empty array on fetch failure', async () => {
+    global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+
+    const markets = await fetchMarkets();
+    expect(markets).toEqual([]);
+  });
+
+  it('returns empty array on non-ok response', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+    });
+
+    const markets = await fetchMarkets();
+    expect(markets).toEqual([]);
+  });
+
+  it('passes regionalChannels through to SportEvent', async () => {
+    const apiEvent = {
+      ...mockAPIEvents[0],
+      regionalChannels: [
+        { type: 'home' as const, channel: 'NESN' },
+        { type: 'away' as const, channel: 'YES' },
+      ],
+    };
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ events: [apiEvent] }),
+    });
+
+    const events = await fetchEvents();
+    expect(events[0].regionalChannels).toHaveLength(2);
+    expect(events[0].regionalChannels![0].channel).toBe('NESN');
+    expect(events[0].regionalChannels![1].channel).toBe('YES');
   });
 });

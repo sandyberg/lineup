@@ -2,10 +2,11 @@ import React from 'react';
 import { Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { ServiceSelectorContent } from '@/components/service-selector';
 import { TeamPicker } from '@/components/team-picker';
+import { MarketPicker } from '@/components/market-picker';
 import { usePreferences } from '@/hooks/use-preferences';
 
 export default function SettingsScreen() {
-  const { prefs, toggleService, toggleTeam, toggleFavoriteSport } = usePreferences();
+  const { prefs, toggleService, toggleTeam, toggleFavoriteSport, setTvMarket } = usePreferences();
   const { width, height } = useWindowDimensions();
   const isMobile = width < 600;
   const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
@@ -30,6 +31,19 @@ export default function SettingsScreen() {
         <ServiceSelectorContent
           selectedServices={prefs.selectedServices}
           onToggle={toggleService}
+          compact={isMobile}
+        />
+
+        <View style={styles.divider} />
+
+        <Text style={[styles.heading, isMobile && { fontSize: 26 }]}>TV Market</Text>
+        <Text style={styles.subheading}>
+          Select your local TV market to see regional sports networks and local channels.
+        </Text>
+
+        <MarketPicker
+          selectedMarket={prefs.tvMarket ?? null}
+          onSelect={setTvMarket}
           compact={isMobile}
         />
 

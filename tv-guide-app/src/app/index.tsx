@@ -16,6 +16,7 @@ import { fetchEvents, filterEvents, groupEventsByTime, groupEventsBySport } from
 import { GroupedEvents, SportEvent, StreamingService } from '@/lib/types';
 import { usePreferences } from '@/hooks/use-preferences';
 import { useResponsive } from '@/hooks/use-responsive';
+import { enrichEventWithRSN } from '@/lib/rsn';
 
 export default function GuideScreen() {
   const [events, setEvents] = useState<SportEvent[]>([]);
@@ -61,10 +62,15 @@ export default function GuideScreen() {
     return () => clearInterval(interval);
   }, [loadEvents]);
 
+  const enrichedEvents = useMemo(
+    () => events.map((e) => enrichEventWithRSN(e, prefs.tvMarket ?? null)),
+    [events, prefs.tvMarket],
+  );
+
   const hasFavorites = (prefs.favoriteTeams ?? []).length > 0 || (prefs.favoriteSports ?? []).length > 0;
   const activeTeamFilter = showMyTeams && hasFavorites ? (prefs.favoriteTeams ?? []) : undefined;
   const activeSportFilter = showMyTeams && hasFavorites ? (prefs.favoriteSports ?? []) : undefined;
-  const filteredEvents = filterEvents(events, prefs.selectedSport, prefs.selectedServices, activeTeamFilter, activeSportFilter);
+  const filteredEvents = filterEvents(enrichedEvents, prefs.selectedSport, prefs.selectedServices, activeTeamFilter, activeSportFilter);
 
   const grouped: GroupedEvents[] = prefs.selectedSport === 'all'
     ? groupEventsBySport(filteredEvents)

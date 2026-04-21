@@ -3,6 +3,7 @@ import express from 'express';
 import { InMemoryCache } from './cache';
 import { getServicesForChannel } from './channel-mapping';
 import { fetchAllEvents, fetchAllTeams, NormalizedEvent } from './sports-api';
+import { TV_MARKETS } from './rsn-markets';
 
 export const app = express();
 const PORT = process.env.PORT || 3001;
@@ -123,6 +124,11 @@ app.get('/api/teams', async (_req, res) => {
     console.error('[server] Error fetching teams:', err);
     res.status(500).json({ error: 'Failed to fetch teams' });
   }
+});
+
+app.get('/api/markets', (_req, res) => {
+  const markets = TV_MARKETS.map((m) => ({ id: m.id, label: m.label }));
+  res.json({ markets, timestamp: new Date().toISOString() });
 });
 
 app.get('/api/health', (_req, res) => {

@@ -198,6 +198,41 @@ describe('GET /api/teams', () => {
   });
 });
 
+describe('GET /api/markets', () => {
+  it('returns 200 with markets array', async () => {
+    const res = await request(app).get('/api/markets');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('markets');
+    expect(Array.isArray(res.body.markets)).toBe(true);
+  });
+
+  it('returns a timestamp', async () => {
+    const res = await request(app).get('/api/markets');
+    expect(res.body).toHaveProperty('timestamp');
+  });
+
+  it('returns markets with id and label', async () => {
+    const res = await request(app).get('/api/markets');
+    const markets = res.body.markets;
+    expect(markets.length).toBeGreaterThan(0);
+    for (const market of markets) {
+      expect(market).toHaveProperty('id');
+      expect(market).toHaveProperty('label');
+      expect(typeof market.id).toBe('string');
+      expect(typeof market.label).toBe('string');
+    }
+  });
+
+  it('includes well-known markets', async () => {
+    const res = await request(app).get('/api/markets');
+    const ids = res.body.markets.map((m: any) => m.id);
+    expect(ids).toContain('new-york');
+    expect(ids).toContain('boston');
+    expect(ids).toContain('chicago');
+    expect(ids).toContain('los-angeles');
+  });
+});
+
 describe('Event enrichment', () => {
   it('adds league-specific services to events', async () => {
     const res = await request(app).get('/api/events');

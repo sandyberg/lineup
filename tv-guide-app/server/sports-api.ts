@@ -44,9 +44,16 @@ interface ESPNEvent {
       names: string[];
     }>;
     geoBroadcasts?: Array<{
+      type?: { shortName: string };
+      market?: { type: string };
       media: { shortName: string };
     }>;
   }>;
+}
+
+export interface RegionalBroadcast {
+  type: 'home' | 'away' | 'national';
+  channel: string;
 }
 
 export interface NormalizedEvent {
@@ -56,6 +63,7 @@ export interface NormalizedEvent {
   sport: string;
   league: string;
   channel: string;
+  regionalChannels?: RegionalBroadcast[];
   startTime: string;
   status: 'upcoming' | 'live' | 'final';
   homeTeam?: string;
@@ -147,6 +155,20 @@ function normalizeESPNEvent(event: ESPNEvent, config: { league: string; sport: s
   const geoBroadcasts = comp.geoBroadcasts?.map((b) => b.media.shortName) ?? [];
   const channel = broadcasts[0] ?? geoBroadcasts[0] ?? '';
 
+  const regionalChannels: RegionalBroadcast[] = [];
+  if (comp.geoBroadcasts) {
+    for (const gb of comp.geoBroadcasts) {
+      if (gb.type?.shortName?.toLowerCase() === 'radio') continue;
+      const marketType = gb.market?.type?.toLowerCase() ?? '';
+      const type: RegionalBroadcast['type'] =
+        marketType === 'home' ? 'home' :
+        marketType === 'away' ? 'away' : 'national';
+      if (gb.media?.shortName) {
+        regionalChannels.push({ type, channel: gb.media.shortName });
+      }
+    }
+  }
+
   const home = comp.competitors?.find((c) => c.homeAway === 'home');
   const away = comp.competitors?.find((c) => c.homeAway === 'away');
 
@@ -157,6 +179,7 @@ function normalizeESPNEvent(event: ESPNEvent, config: { league: string; sport: s
     sport: config.sport,
     league: config.league,
     channel,
+    regionalChannels: regionalChannels.length > 0 ? regionalChannels : undefined,
     startTime: event.date,
     status: mapStatus(event.status.type.state),
     homeTeam: home?.team.displayName,

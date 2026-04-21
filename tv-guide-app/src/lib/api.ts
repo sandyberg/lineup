@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import { SportEvent, GroupedEvents, TimeGroup, SportCategory, TeamInfo } from './types';
+import { SportEvent, GroupedEvents, TimeGroup, SportCategory, TeamInfo, MarketInfo, RegionalBroadcast } from './types';
 import { findChannelByName } from '@/data/channels';
 
 const PRODUCTION_API = 'https://lineup-api-31li.onrender.com';
@@ -15,6 +15,7 @@ interface APIEvent {
   sport: string;
   league: string;
   channel: string;
+  regionalChannels?: RegionalBroadcast[];
   startTime: string;
   status: 'upcoming' | 'live' | 'final';
   homeTeam?: string;
@@ -39,6 +40,7 @@ function toSportEvent(event: APIEvent): SportEvent {
     sport: event.sport as SportEvent['sport'],
     league: event.league,
     channel: event.channel,
+    regionalChannels: event.regionalChannels,
     startTime: event.startTime,
     status: event.status,
     homeTeam: event.homeTeam,
@@ -80,6 +82,21 @@ export async function fetchTeams(): Promise<TeamInfo[]> {
     return data.teams as TeamInfo[];
   } catch (err) {
     console.warn('Failed to fetch teams', err);
+    return [];
+  }
+}
+
+export async function fetchMarkets(): Promise<MarketInfo[]> {
+  try {
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers['x-api-key'] = API_KEY;
+
+    const res = await fetch(`${API_BASE}/api/markets`, { headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data.markets as MarketInfo[];
+  } catch (err) {
+    console.warn('Failed to fetch markets', err);
     return [];
   }
 }

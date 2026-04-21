@@ -33,6 +33,11 @@ export interface Channel {
   serviceIds: string[];
 }
 
+export interface RegionalBroadcast {
+  type: 'home' | 'away' | 'national';
+  channel: string;
+}
+
 export interface SportEvent {
   id: string;
   title: string;
@@ -40,6 +45,7 @@ export interface SportEvent {
   sport: SportCategory;
   league: string;
   channel: string;
+  regionalChannels?: RegionalBroadcast[];
   startTime: string;
   endTime?: string;
   status: 'upcoming' | 'live' | 'final';
@@ -66,7 +72,13 @@ export interface UserPreferences {
   selectedSport: SportCategory;
   favoriteTeams: string[];
   favoriteSports: string[];
+  tvMarket: string | null;
   onboardingComplete: boolean;
+}
+
+export interface MarketInfo {
+  id: string;
+  label: string;
 }
 
 export interface TeamInfo {
