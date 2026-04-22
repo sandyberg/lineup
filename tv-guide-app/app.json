@@ -4,6 +4,8 @@
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.sandyberg.lineup",
+      "buildNumber": "3",
       "icon": "./assets/expo.icon"
     },
     "android": {
