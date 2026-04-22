@@ -3,6 +3,7 @@ import { Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } fro
 import { ServiceSelectorContent } from '@/components/service-selector';
 import { TeamPicker } from '@/components/team-picker';
 import { MarketPicker } from '@/components/market-picker';
+import { FeedbackSection } from '@/components/feedback-section';
 import { usePreferences } from '@/hooks/use-preferences';
 
 export default function SettingsScreen() {
@@ -61,6 +62,11 @@ export default function SettingsScreen() {
           onToggleSport={toggleFavoriteSport}
           compact={isMobile}
         />
+
+        <View style={styles.divider} />
+
+        <Text style={[styles.heading, isMobile && { fontSize: 26 }]}>Questions or Suggestions?</Text>
+        <FeedbackSection compact={isMobile} />
       </ScrollView>
     </View>
   );

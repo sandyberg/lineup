@@ -71,7 +71,7 @@ Lineup doesn't require an account. Your preferences stay on your device. We don'
 
 SUPPORT
 
-Questions or feedback? Visit https://github.com/sandyberg/lineup
+Questions or feedback? Email lineup.tvguide@gmail.com or visit https://lineupguide.tv
 ```
 
 **~1400 / 4000** — leaves room to grow
@@ -108,9 +108,9 @@ Version 1.1.0
 
 ## URLs Required
 
-- **Support URL**: `https://github.com/sandyberg/lineup`
-- **Marketing URL** (optional): `https://sandyberg.github.io/lineup/`
-- **Privacy Policy URL**: `https://sandyberg.github.io/lineup/`
+- **Support URL**: `https://lineupguide.tv`
+- **Marketing URL** (optional): `https://lineupguide.tv`
+- **Privacy Policy URL**: `https://lineupguide.tv/privacy`
 
 ---
 
