@@ -71,7 +71,7 @@ Lineup doesn't require an account. Your preferences stay on your device. We don'
 
 SUPPORT
 
-Questions or feedback? Visit {support URL} or email {support email}.
+Questions or feedback? Visit https://github.com/sandyberg/lineup
 ```
 
 **~1400 / 4000** — leaves room to grow
@@ -108,11 +108,9 @@ Version 1.1.0
 
 ## URLs Required
 
-- **Support URL**: _(need to create)_ — can be a simple page or GitHub README
-  - Suggestion: `https://github.com/sandyberg/lineup/blob/main/README.md` or a landing page
-- **Marketing URL** (optional): same as support for now
-- **Privacy Policy URL**: _**REQUIRED**_ — must exist before submission
-  - Can draft a minimal one; needs to state "we don't collect PII" clearly
+- **Support URL**: `https://github.com/sandyberg/lineup`
+- **Marketing URL** (optional): `https://sandyberg.github.io/lineup/`
+- **Privacy Policy URL**: `https://sandyberg.github.io/lineup/`
 
 ---
 
