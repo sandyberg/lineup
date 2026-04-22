@@ -18,8 +18,8 @@ function urlForMobileWebBrowser(service: StreamingService): string | undefined {
   if (typeof navigator === 'undefined') return undefined;
   const ua = navigator.userAgent;
   if (/Android/i.test(ua)) return service.deepLinks.android;
-  if (/iPhone|iPad|iPod/i.test(ua)) return service.deepLinks.tvos;
-  return service.deepLinks.android ?? service.deepLinks.tvos;
+  if (/iPhone|iPad|iPod/i.test(ua)) return service.deepLinks.ios ?? service.deepLinks.tvos;
+  return service.deepLinks.android ?? service.deepLinks.ios ?? service.deepLinks.tvos;
 }
 
 function resolveLaunchUrl(service: StreamingService): string | undefined {
@@ -34,7 +34,8 @@ function resolveLaunchUrl(service: StreamingService): string | undefined {
   }
 
   if (Platform.OS === 'ios') {
-    return service.deepLinks.tvos ?? service.deepLinks.web;
+    if (Platform.isTV) return service.deepLinks.tvos ?? service.deepLinks.web;
+    return service.deepLinks.ios ?? service.deepLinks.tvos ?? service.deepLinks.web;
   }
 
   return service.deepLinks.web;

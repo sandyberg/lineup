@@ -31,11 +31,11 @@ describe('launchStreamingApp', () => {
     expect(result).toBe(true);
   });
 
-  it('opens the tvos deep link on ios platform', async () => {
+  it('opens the ios deep link on ios platform when available', async () => {
     (Platform as any).OS = 'ios';
     const result = await launchStreamingApp('youtube-tv');
     expect(Linking.openURL).toHaveBeenCalledWith(
-      SERVICE_MAP['youtube-tv'].deepLinks.tvos,
+      SERVICE_MAP['youtube-tv'].deepLinks.ios,
     );
     expect(result).toBe(true);
   });
@@ -203,7 +203,7 @@ describe('launchStreamingApp on mobile web', () => {
     const result = await launchStreamingApp('youtube-tv');
 
     expect(result).toBe(true);
-    expect(mockOpen).toHaveBeenCalledWith(SERVICE_MAP['youtube-tv'].deepLinks.tvos, '_blank');
+    expect(mockOpen).toHaveBeenCalledWith(SERVICE_MAP['youtube-tv'].deepLinks.ios, '_blank');
     expect(Linking.openURL).not.toHaveBeenCalled();
   });
 
@@ -253,7 +253,7 @@ describe('launchStreamingApp on mobile web', () => {
     const result = await launchStreamingApp('youtube-tv');
 
     expect(result).toBe(true);
-    expect(Linking.openURL).toHaveBeenCalledWith(SERVICE_MAP['youtube-tv'].deepLinks.tvos);
+    expect(Linking.openURL).toHaveBeenCalledWith(SERVICE_MAP['youtube-tv'].deepLinks.ios);
   });
 
   it('uses Linking.openURL on desktop web (not mobile)', async () => {

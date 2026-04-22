@@ -1,5 +1,6 @@
 import React from 'react';
 import { Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ServiceSelectorContent } from '@/components/service-selector';
 import { TeamPicker } from '@/components/team-picker';
 import { MarketPicker } from '@/components/market-picker';
@@ -9,10 +10,18 @@ import { usePreferences } from '@/hooks/use-preferences';
 export default function SettingsScreen() {
   const { prefs, toggleService, toggleTeam, toggleFavoriteSport, setTvMarket } = usePreferences();
   const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const isMobile = width < 600;
   const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
   const isWebMobile = Platform.OS === 'web' && width < 768;
-  const topPadding = isLandscapeMobile ? 8 : isWebMobile ? 80 : 80;
+  const isNativeMobile = (Platform.OS === 'ios' || Platform.OS === 'android') && !Platform.isTV;
+  const topPadding = isLandscapeMobile
+    ? 8
+    : isNativeMobile
+      ? insets.top + 8
+      : isWebMobile
+        ? 80
+        : 80;
 
   return (
     <View testID="settings-screen" style={styles.container}>

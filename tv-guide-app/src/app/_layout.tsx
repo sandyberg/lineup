@@ -1,6 +1,7 @@
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppTabs from '@/components/app-tabs';
 import { Onboarding } from '@/components/onboarding';
 import { PreferencesProvider, usePreferences } from '@/hooks/use-preferences';
@@ -41,11 +42,13 @@ function AppContent() {
 
 export default function TabLayout() {
   return (
-    <ThemeProvider value={NavyTheme}>
-      <PreferencesProvider>
-        <AppContent />
-      </PreferencesProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={NavyTheme}>
+        <PreferencesProvider>
+          <AppContent />
+        </PreferencesProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 

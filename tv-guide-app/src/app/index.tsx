@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EventRow } from '@/components/event-row';
 import { SportFilter } from '@/components/sport-filter';
 import { ServicePickerModal } from '@/components/service-picker-modal';
@@ -28,9 +29,11 @@ export default function GuideScreen() {
   const [showMyTeams, setShowMyTeams] = useState(false);
   const { prefs, setSport, loaded } = usePreferences();
   const sizes = useResponsive();
+  const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const isWebMobile = Platform.OS === 'web' && width < 768;
   const isLandscape = width > height;
+  const isNativeMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
   const showServicePicker = useCallback((services: StreamingService[], event: SportEvent) => {
     setPickerServices(services);
@@ -84,7 +87,13 @@ export default function GuideScreen() {
   const dynamicStyles = useMemo(() => ({
     header: {
       paddingHorizontal: sizes.rowPadding,
-      paddingTop: landscapeMobile ? 8 : isMobile ? (tabBarHeight + 8) : 80,
+      paddingTop: landscapeMobile
+        ? 8
+        : isNativeMobile && !Platform.isTV
+          ? insets.top + 8
+          : isMobile
+            ? tabBarHeight + 8
+            : 80,
       paddingBottom: isMobile ? 8 : 16,
     },
     headerTitle: { fontSize: isMobile ? 28 : 42 },
@@ -94,7 +103,7 @@ export default function GuideScreen() {
     emptyIcon: { width: isMobile ? 60 : 80, height: isMobile ? 60 : 80, borderRadius: isMobile ? 30 : 40 },
     emptyIconText: { fontSize: isMobile ? 28 : 36 },
     emptyContainer: { paddingBottom: landscapeMobile ? 0 : isMobile ? 20 : 120 },
-  }), [sizes, isMobile, tabBarHeight, landscapeMobile]);
+  }), [sizes, isMobile, tabBarHeight, landscapeMobile, isNativeMobile, insets.top]);
 
   if (!loaded || loading) {
     return (

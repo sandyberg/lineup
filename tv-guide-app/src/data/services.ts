@@ -8,6 +8,7 @@ export const STREAMING_SERVICES: StreamingService[] = [
     group: 'major',
     deepLinks: {
       tvos: 'https://tv.youtube.com',
+      ios: 'youtubetv://',
       android: 'intent://tv.youtube.com#Intent;package=com.google.android.apps.youtube.unplugged;scheme=https;end',
       web: 'https://tv.youtube.com/live',
     },
@@ -120,6 +121,7 @@ export const STREAMING_SERVICES: StreamingService[] = [
     group: 'league',
     deepLinks: {
       tvos: 'https://tv.youtube.com',
+      ios: 'youtubetv://',
       android: 'intent://tv.youtube.com#Intent;package=com.google.android.apps.youtube.unplugged;scheme=https;end',
       web: 'https://tv.youtube.com/live',
     },

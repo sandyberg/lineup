@@ -13,10 +13,10 @@ export default function AppTabs() {
       backgroundColor="#0D1117"
       indicatorColor="#FFFFFF"
       tintColor="#FFFFFF"
-      iconColor="#8B95A5"
+      iconColor="#B8C1CF"
       labelStyle={{
-        selected: { color: '#FFFFFF' },
-        default: { color: '#8B95A5' },
+        selected: { color: '#FFFFFF', fontWeight: '600' },
+        default: { color: '#B8C1CF' },
       }}
     >
       <NativeTabs.Trigger name="index">

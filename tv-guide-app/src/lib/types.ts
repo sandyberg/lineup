@@ -21,7 +21,10 @@ export interface StreamingService {
   color: string;
   group: ServiceGroup;
   deepLinks: {
+    /** Apple TV (tvOS). */
     tvos?: string;
+    /** iPhone / iPad. Falls back to `tvos` when unset. */
+    ios?: string;
     android?: string;
     /** Android TV / Fire TV — never fall back to web on TV */
     androidTv?: string;

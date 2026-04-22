@@ -5,8 +5,23 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sandyberg.lineup",
-      "buildNumber": "3",
-      "icon": "./assets/expo.icon"
+      "buildNumber": "7",
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "LSApplicationQueriesSchemes": [
+          "youtubetv",
+          "espn",
+          "peacocktv",
+          "hulu",
+          "aiv",
+          "paramountplus",
+          "videos",
+          "mlbatbat",
+          "gametime-nba",
+          "nflgamecenter"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
