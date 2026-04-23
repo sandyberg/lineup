@@ -50,13 +50,27 @@ if [[ -z "${APP}" || ! -d "$APP" ]]; then
 fi
 
 echo ""
-echo "==> Info.plist (90039: CFBundleIcons must not be a bad merge; we strip the key and set CFBundleIconName)"
+echo "==> Info.plist (altool -t appletvos: CFBundlePrimaryIcon must be string brand-asset name)"
 plutil -p "$APP/Info.plist" | grep -E 'CFBundleIconName|CFBundleSupportedPlatforms' || true
-if python3 -c "import sys, plistlib; p=sys.argv[1]; d=plistlib.load(open(p,'rb')); sys.exit(0 if 'CFBundleIcons' not in d else 1)" "$APP/Info.plist" 2>/dev/null; then
-  echo "    CFBundleIcons: absent (good — matches what we want for ASC)"
+if python3 -c "
+import sys, plistlib
+p = sys.argv[1]
+want = 'App Icon - Small'
+d = plistlib.load(open(p, 'rb'))
+c = d.get('CFBundleIcons')
+if c is None or isinstance(c, str):
+  sys.exit(1)
+if not isinstance(c, dict):
+  sys.exit(1)
+pri = c.get('CFBundlePrimaryIcon')
+if pri != want:
+  sys.exit(1)
+print('    CFBundleIcons: CFBundlePrimaryIcon string matches brand asset — OK for App Store upload')
+" "$APP/Info.plist" 2>/dev/null; then
+  :
 else
-  echo "    CFBundleIcons: STILL PRESENT — run: EXPO_TV=1 npx expo prebuild --platform ios, then pod install, and rebuild (plugin out of date?)"
-  python3 -c "import plistlib, pprint, sys; d=plistlib.load(open(sys.argv[1], 'rb')); i=d.get('CFBundleIcons'); print('    CFBundleIcons value:', 'missing' if i is None else type(i).__name__); pprint.pprint(d.get('CFBundleIcons'), width=100)" "$APP/Info.plist" 2>/dev/null || true
+  echo "    CFBundleIcons: INVALID or missing — run: EXPO_TV=1 npx expo prebuild --platform ios, pod install, rebuild (plugin out of date?)"
+  python3 -c "import plistlib, pprint, sys; d=plistlib.load(open(sys.argv[1],'rb')); pprint.pprint(d.get('CFBundleIcons'), width=100)" "$APP/Info.plist" 2>/dev/null || true
   exit 1
 fi
 echo ""

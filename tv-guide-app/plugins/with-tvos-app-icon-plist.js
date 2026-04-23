@@ -1,15 +1,18 @@
 /**
  * tvOS: ensure Info.plist icon keys match what App Store Connect expects.
  *
- * Problem: CFBundleIcons.CFBundlePrimaryIcon can end up as a string
- * ("App Icon - Small") instead of a dictionary. Prebuild withInfoPlist can fix the
- * source plist, but the Xcode / asset catalog pass merges keys back into the
- * built app (90039 / 90713).
+ * Problem: Xcode / actool can merge invalid CFBundleIcons (mixed sources → 90039).
+ * Prebuild can fix the template plist, but the asset-catalog pass rewrites the
+ * built .app (90039 / 90713).
  *
- * We set CFBundleIconName to the primary brand-asset name from
- * @react-native-tvos/config-tv: "App Icon - Small", delete CFBundleIcons in the
- * template plist, and add a Run Script that strips CFBundleIcons from the
- * built .app Info.plist (after actool) so the fix survives archive.
+ * We set CFBundleIconName and CFBundleIcons.CFBundlePrimaryIcon to the *string*
+ * brand-asset set name: "App Icon - Small" (@react-native-tvos/config-tv). A Run
+ * Script rewrites the built .app Info.plist after actool so the value survives
+ * archive and signing. App Store / Content Delivery (altool -t appletvos) requires
+ * CFBundlePrimaryIcon to be a *string*; a dict w/ CFBundleIconFiles is rejected
+ * (409 type mismatch / missing string). Bad actool *merges* (mixed iOS + TV icons)
+ * still produce 90039; our script runs *after* actool and overwrites with the
+ * canonical string.
  * The script runs when SDKROOT matches *AppleTVSimulator* or *AppleTVOS* (device + simulator).
  *
  * CocoaPods appends shell phases (e.g. [CP] Embed Pods Frameworks) *after* prebuild
@@ -53,9 +56,10 @@ function isAppleTVPlist(plist) {
 }
 
 /**
- * We observed a bad merge where CFBundlePrimaryIcon is a *string*:
- *   CFBundleIcons: { CFBundlePrimaryIcon: "App Icon - Small" }
- * App Store Connect rejects with 90039; CFBundleIconName is also required (90713).
+ * Healthy tvOS store plist: CFBundlePrimaryIcon is the *string* "App Icon - Small"
+ * (brand asset). Wrong dict merges from actool (90039) and dict+CFBundleIconFiles
+ * from earlier fixes (409 with altool -t appletvos) are both "broken" until
+ * the run script overwrites. CFBundleIconName is also required (90713).
  */
 function hasBrokenAppIconPlist(plist) {
   const ci = plist.CFBundleIcons;
@@ -65,10 +69,14 @@ function hasBrokenAppIconPlist(plist) {
   if (typeof ci === 'string') {
     return true;
   }
-  if (typeof ci === 'object' && typeof ci.CFBundlePrimaryIcon === 'string') {
+  if (typeof ci !== 'object') {
     return true;
   }
-  return false;
+  const pri = ci.CFBundlePrimaryIcon;
+  if (pri === TV_PRIMARY_ICON_NAME) {
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -166,7 +174,7 @@ try:
   d = plistlib.load(f)
   f.close()
   had = "CFBundleIcons" in d
-  d.pop("CFBundleIcons", None)
+  d["CFBundleIcons"] = {"CFBundlePrimaryIcon": icn}
   d["CFBundleIconName"] = icn
   f = open(p, "wb")
   plistlib.dump(d, f, fmt=plistlib.FMT_BINARY)
@@ -186,6 +194,9 @@ except Exception as e:
   fi
   if /usr/libexec/PlistBuddy -c "Print :CFBundleIcons" "\$_pl" >/dev/null 2>&1; then
     /usr/libexec/PlistBuddy -c "Delete :CFBundleIcons" "\$_pl" 2>/dev/null || true
+  fi
+  if /usr/libexec/PlistBuddy -c "Add :CFBundleIcons dict" "\$_pl" 2>/dev/null; then
+    /usr/libexec/PlistBuddy -c "Add :CFBundleIcons:CFBundlePrimaryIcon string '${iconName}'" "\$_pl" 2>/dev/null || true
   fi
   if ! /usr/libexec/PlistBuddy -c "Print :CFBundleIconName" "\$_pl" >/dev/null 2>&1; then
     /usr/libexec/PlistBuddy -c "Add :CFBundleIconName string 'App Icon - Small'" "\$_pl" 2>/dev/null || true
@@ -291,7 +302,9 @@ function withTvOSAppIconPlist(config) {
     if (!hasBrokenAppIconPlist(plist) && typeof plist.CFBundleIconName === 'string' && plist.CFBundleIconName.length > 0) {
       return config;
     }
-    delete plist.CFBundleIcons;
+    plist.CFBundleIcons = {
+      CFBundlePrimaryIcon: TV_PRIMARY_ICON_NAME,
+    };
     plist.CFBundleIconName = TV_PRIMARY_ICON_NAME;
     return config;
   });
