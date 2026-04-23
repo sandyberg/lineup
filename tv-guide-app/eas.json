@@ -64,7 +64,8 @@
         "simulator": false
       },
       "env": {
-        "EXPO_TV": "1"
+        "EXPO_TV": "1",
+        "LINEUP_DEBUG_TVOS_INFOPLIST": "1"
       }
     },
     "preview_tv_ios": {

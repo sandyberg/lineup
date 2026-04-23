@@ -10,6 +10,7 @@
  * @react-native-tvos/config-tv: "App Icon - Small", delete CFBundleIcons in the
  * template plist, and add a Run Script that strips CFBundleIcons from the
  * built .app Info.plist (after actool) so the fix survives archive.
+ * The script runs when SDKROOT matches *AppleTVSimulator* or *AppleTVOS* (device + simulator).
  *
  * CocoaPods appends shell phases (e.g. [CP] Embed Pods Frameworks) *after* prebuild
  * rewrites the xcodeproj, so that script can run *after* our PlistBuddy fix. We
@@ -86,69 +87,137 @@ function patchPbxIncludeAllAppIconAssetsToNo(projectRoot) {
     return;
   }
   let s = fs.readFileSync(pbxPath, 'utf8');
-  const out = s.replace(
+  let out = s.replace(
     /ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;/g,
     'ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;',
   );
+  if (!out.includes('INFOPLIST_ENABLE_CFBUNDLEICONS_MERGE')) {
+    out = out.replace(
+      /ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;/g,
+      'ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;\n\t\t\t\tINFOPLIST_ENABLE_CFBUNDLEICONS_MERGE = NO;',
+    );
+  }
   if (out !== s) {
     fs.writeFileSync(pbxPath, out);
   }
 }
 
-function hasTvosPlistFixBuildPhase(project) {
-  const { firstTarget } = project.getFirstTarget();
-  if (!firstTarget || !Array.isArray(firstTarget.buildPhases)) {
+/**
+ * xcode pbx encodes shellScript like pbxShellScriptBuildPhaseObj in cordova-xcode.
+ * @param {import('xcode').XcodeProject} project
+ * @param {string} body
+ * @returns {boolean} true if an existing [lineup] phase was updated
+ */
+function upsertPlistFixShellScriptInPbxProject(project, body) {
+  const section = project?.hash?.project?.objects?.PBXShellScriptBuildPhase;
+  if (!section || typeof section !== 'object') {
     return false;
   }
-  return firstTarget.buildPhases.some(
-    (phase) => phase.comment && String(phase.comment).includes('[lineup] Fix tvOS App Store Info.plist'),
-  );
+  const esc = (s) => `"${s.replace(/"/g, '\\"')}"`;
+  let updated = false;
+  for (const key of Object.keys(section)) {
+    if (key.includes('_comment')) {
+      continue;
+    }
+    const phase = section[key];
+    if (!phase || phase.isa !== 'PBXShellScriptBuildPhase') {
+      continue;
+    }
+    const nm = phase.name != null ? String(phase.name) : '';
+    if (!nm.includes('lineup') || !nm.includes('CFBundleIcons')) {
+      continue;
+    }
+    phase.shellPath = '/bin/sh';
+    phase.shellScript = esc(body);
+    phase.alwaysOutOfDate = 1;
+    phase.showEnvVarsInLog = 0;
+    updated = true;
+  }
+  return updated;
 }
 
 /**
  * @param {import('xcode').XcodeProject} project
  */
 function addFixPlistBuildPhase(project) {
-  if (hasTvosPlistFixBuildPhase(project)) {
-    return;
-  }
-  const { uuid: targetUuid } = project.getFirstTarget();
+  const { uuid: targetUuid } = project.getFirstTarget() || {};
   if (!targetUuid) {
     return;
   }
   // Must match the catalog name in @react-native-tvos/config-tv (withTVAppleIconImages).
   const iconName = TV_PRIMARY_ICON_NAME;
-  const shellScript = `SDK_BASENAME="\${SDKROOT##*/}"
-if [ "\$SDK_BASENAME" != "appletvos" ] && [ "\$SDK_BASENAME" != "AppleTVOS" ]; then
-  exit 0
+  const shellScript = `# Run for tvOS device and simulator. Prefer SDKROOT (always set) — PLATFORM_NAME is not always exported to Run Script.
+case "\${SDKROOT}" in
+  *AppleTVSimulator*|*AppleTVOS*) ;;
+  *) exit 0 ;;
+esac
+# Primary fix: python plistlib rewrites the plist (survives malformed CFBundleIcons merges).
+# Debug: set LINEUP_DEBUG_TVOS_INFOPLIST=1 (e.g. in eas.json for production_tv_ios) to log paths.
+if [ "\${LINEUP_DEBUG_TVOS_INFOPLIST}" = "1" ]; then
+  echo "lineup-tvos-info-plist: BUILT_PRODUCTS_DIR=\${BUILT_PRODUCTS_DIR} TARGET_BUILD_DIR=\${TARGET_BUILD_DIR} CODESIGNING_FOLDER_PATH=\${CODESIGNING_FOLDER_PATH} WRAPPER_NAME=\${WRAPPER_NAME} CONFIGURATION=\${CONFIGURATION}" >&2
 fi
 lineup_tvos_fix_plist() {
   _pl="\$1"
   [ -f "\$_pl" ] || return 0
+  if command -v python3 >/dev/null 2>&1; then
+    if python3 -c 'import os, sys, plistlib; p, icn, dbg = (sys.argv[1], sys.argv[2], os.environ.get("LINEUP_DEBUG_TVOS_INFOPLIST") == "1");
+try:
+  f = open(p, "rb")
+  d = plistlib.load(f)
+  f.close()
+  had = "CFBundleIcons" in d
+  d.pop("CFBundleIcons", None)
+  d["CFBundleIconName"] = icn
+  f = open(p, "wb")
+  plistlib.dump(d, f, fmt=plistlib.FMT_BINARY)
+  f.close()
+  if dbg:
+    print("lineup-tvos-info-plist: fixed", p, "had_CFBundleIcons=", had, file=sys.stderr)
+except Exception as e:
+  if dbg:
+    print("lineup-tvos-info-plist: python failed", p, e, file=sys.stderr)
+  sys.exit(1)
+' "\$_pl" "${iconName}"; then
+      return 0
+    fi
+  fi
+  if command -v plutil >/dev/null 2>&1; then
+    plutil -remove "CFBundleIcons" "\$_pl" 2>/dev/null || true
+  fi
   if /usr/libexec/PlistBuddy -c "Print :CFBundleIcons" "\$_pl" >/dev/null 2>&1; then
     /usr/libexec/PlistBuddy -c "Delete :CFBundleIcons" "\$_pl" 2>/dev/null || true
   fi
   if ! /usr/libexec/PlistBuddy -c "Print :CFBundleIconName" "\$_pl" >/dev/null 2>&1; then
-    /usr/libexec/PlistBuddy -c "Add :CFBundleIconName string ${iconName}" "\$_pl" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Add :CFBundleIconName string 'App Icon - Small'" "\$_pl" 2>/dev/null || true
+  else
+    /usr/libexec/PlistBuddy -c "Set :CFBundleIconName 'App Icon - Small'" "\$_pl" 2>/dev/null || true
   fi
 }
-for ROOT in "\${BUILT_PRODUCTS_DIR}" "\${TARGET_BUILD_DIR}" "\${CODESIGNING_FOLDER_PATH}"; do
-  if [ -z "\$ROOT" ] || [ ! -d "\$ROOT" ]; then
-    continue
-  fi
-  find "\$ROOT" -name Info.plist 2>/dev/null | while IFS= read -r PL; do
-    case "\$PL" in
-      *.app/Info.plist) lineup_tvos_fix_plist "\$PL" ;;
-    esac
+lineup_tvos_sweep() {
+  for ROOT in "\${BUILT_PRODUCTS_DIR}" "\${TARGET_BUILD_DIR}" "\${CONFIGURATION_BUILD_DIR}" "\${CODESIGNING_FOLDER_PATH}" "\${OBJROOT}" "\${SYMROOT}"; do
+    if [ -z "\$ROOT" ] || [ ! -d "\$ROOT" ]; then
+      continue
+    fi
+    find "\$ROOT" -name Info.plist 2>/dev/null | while IFS= read -r PL; do
+      case "\$PL" in
+        *.app/Info.plist) lineup_tvos_fix_plist "\$PL" ;;
+      esac
+    done
   done
-done
-for PLIST in "\${CODESIGNING_FOLDER_PATH}/Info.plist" "\${BUILT_PRODUCTS_DIR}/\${WRAPPER_NAME}/Info.plist" "\${TARGET_BUILD_DIR}/\${WRAPPER_NAME}/Info.plist"; do
-  if [ -n "\$PLIST" ] && [ -f "\$PLIST" ]; then
-    lineup_tvos_fix_plist "\$PLIST"
-  fi
-done
+  for PLIST in "\${CODESIGNING_FOLDER_PATH}/Info.plist" "\${BUILT_PRODUCTS_DIR}/\${WRAPPER_NAME}/Info.plist" "\${TARGET_BUILD_DIR}/\${WRAPPER_NAME}/Info.plist"; do
+    if [ -n "\$PLIST" ] && [ -f "\$PLIST" ]; then
+      lineup_tvos_fix_plist "\$PLIST"
+    fi
+  done
+}
+lineup_tvos_sweep
+lineup_tvos_sweep
 `;
 
+  // Re-run prebuild must refresh script body: xcode "add once" would otherwise keep the first version forever.
+  if (upsertPlistFixShellScriptInPbxProject(project, shellScript)) {
+    return;
+  }
   const { buildPhase } = project.addBuildPhase(
     [],
     'PBXShellScriptBuildPhase',

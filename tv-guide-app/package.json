@@ -16,6 +16,7 @@
     "lint": "expo lint",
     "prebuild": "expo prebuild --clean",
     "prebuild:tv": "EXPO_TV=1 expo prebuild --clean",
+    "smoke:tv:ios": "bash ./scripts/lineup-tvos-local-smoke.sh",
     "deploy": "npx expo export -p web && npx eas-cli@latest deploy"
   },
   "dependencies": {
