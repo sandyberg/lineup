@@ -5,9 +5,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sandyberg.lineup",
-      "buildNumber": "15",
+      "buildNumber": "17",
       "icon": "./assets/expo.icon",
       "infoPlist": {
+        "CFBundleIconName": "App Icon - Small",
         "ITSAppUsesNonExemptEncryption": false,
         "LSApplicationQueriesSchemes": [
           "youtubetv",

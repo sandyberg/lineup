@@ -61,7 +61,8 @@
     "production_tv_ios": {
       "extends": "production",
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "scheme": "Lineup"
       },
       "env": {
         "EXPO_TV": "1",
