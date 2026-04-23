@@ -2,6 +2,23 @@ import { STREAMING_SERVICES, SERVICE_MAP } from '@/data/services';
 
 describe('Deep link configuration', () => {
   describe('service deep links', () => {
+    it('all services have App Store and Play Store ids for install fallbacks', () => {
+      for (const service of STREAMING_SERVICES) {
+        expect(service.appStoreId).toBeDefined();
+        expect(service.appStoreId).toMatch(/^\d+$/);
+        expect(service.playStorePackage).toBeDefined();
+        expect(service.playStorePackage).toMatch(
+          /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/i,
+        );
+        if (service.id === 'prime-video') {
+          expect(service.playStorePackageTv).toBeDefined();
+          expect(service.playStorePackageTv).toMatch(
+            /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/i,
+          );
+        }
+      }
+    });
+
     it('all services have tvos deep links', () => {
       for (const service of STREAMING_SERVICES) {
         expect(service.deepLinks.tvos).toBeDefined();

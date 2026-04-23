@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Animated,
   Platform,
@@ -6,9 +6,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
-import { useWindowDimensions } from 'react-native';
 import { MAJOR_SERVICES, LEAGUE_SERVICES } from '@/data/services';
 import { getSizesForWidth } from '@/lib/constants';
 import { TeamPicker } from './team-picker';
@@ -180,74 +180,72 @@ function ServicePickerStep({
 
   return (
     <ScrollView testID="onboarding-service-picker" style={scrollStyle} contentContainerStyle={[styles.pickerContent, { paddingTop: topPadding }, isMobile && { paddingHorizontal: 20 }]} showsVerticalScrollIndicator={false}>
-        <Text style={[styles.stepTitle, isMobile && { fontSize: 26 }]}>Pick your streaming services</Text>
-        <Text style={styles.stepSubtitle}>
-          Lineup will only show games available on your services. You can change this anytime in Settings.
-        </Text>
+      <Text style={[styles.stepTitle, isMobile && { fontSize: 26 }]}>Pick your streaming services</Text>
+      <Text style={styles.stepSubtitle}>
+        Lineup will only show games available on your services. You can change this anytime in Settings.
+      </Text>
 
-        <View style={[styles.serviceGrid, isMobile && { gap: 10 }]}>
-          {MAJOR_SERVICES.map((service) => (
-            <ServiceChip
-              key={service.id}
-              name={service.name}
-              color={service.color}
-              isSelected={selectedServices.includes(service.id)}
-              onPress={() => onToggle(service.id)}
-              compact={isMobile}
-            />
-          ))}
-        </View>
+      <View style={[styles.serviceGrid, isMobile && { gap: 10 }]}>
+        {MAJOR_SERVICES.map((service) => (
+          <ServiceChip
+            key={service.id}
+            name={service.name}
+            color={service.color}
+            isSelected={selectedServices.includes(service.id)}
+            onPress={() => onToggle(service.id)}
+            compact={isMobile}
+          />
+        ))}
+      </View>
+      <Text style={styles.sectionLabel}>League packages</Text>
+      <Text style={styles.sectionHint}>Add these if you subscribe to league-specific streaming</Text>
+      <View style={[styles.serviceGrid, isMobile && { gap: 10 }]}>
+        {LEAGUE_SERVICES.map((service) => (
+          <ServiceChip
+            key={service.id}
+            name={service.name}
+            color={service.color}
+            isSelected={selectedServices.includes(service.id)}
+            onPress={() => onToggle(service.id)}
+            compact={isMobile}
+          />
+        ))}
+      </View>
 
-        <Text style={styles.sectionLabel}>League packages</Text>
-        <Text style={styles.sectionHint}>Add these if you subscribe to league-specific streaming</Text>
+      <Text style={styles.selectedCount}>
+        {selectedServices.length} service{selectedServices.length !== 1 ? 's' : ''} selected
+      </Text>
 
-        <View style={[styles.serviceGrid, isMobile && { gap: 10 }]}>
-          {LEAGUE_SERVICES.map((service) => (
-            <ServiceChip
-              key={service.id}
-              name={service.name}
-              color={service.color}
-              isSelected={selectedServices.includes(service.id)}
-              onPress={() => onToggle(service.id)}
-              compact={isMobile}
-            />
-          ))}
-        </View>
-
-        <Text style={styles.selectedCount}>
-          {selectedServices.length} service{selectedServices.length !== 1 ? 's' : ''} selected
-        </Text>
-
-        <Animated.View style={{ transform: [{ scale: btnScale }] }}>
-          <Pressable
-            testID="onboarding-next-services"
-            onPress={onComplete}
-            onFocus={() =>
-              Animated.spring(btnScale, {
-                toValue: 1.05,
-                useNativeDriver: true,
-                friction: 8,
-              }).start()
-            }
-            onBlur={() =>
-              Animated.spring(btnScale, {
-                toValue: 1,
-                useNativeDriver: true,
-                friction: 8,
-              }).start()
-            }
-            style={({ focused }) => [
-              styles.ctaButton,
-              focused && styles.ctaButtonFocused,
-              selectedServices.length === 0 && styles.ctaButtonDisabled,
-            ]}
-            disabled={selectedServices.length === 0}
-          >
-            <Text style={styles.ctaText}>
-              {selectedServices.length === 0 ? 'Select at least one' : 'Next'}
-            </Text>
-          </Pressable>
-        </Animated.View>
+      <Animated.View style={{ transform: [{ scale: btnScale }] }}>
+        <Pressable
+          testID="onboarding-next-services"
+          onPress={onComplete}
+          onFocus={() =>
+            Animated.spring(btnScale, {
+              toValue: 1.05,
+              useNativeDriver: true,
+              friction: 8,
+            }).start()
+          }
+          onBlur={() =>
+            Animated.spring(btnScale, {
+              toValue: 1,
+              useNativeDriver: true,
+              friction: 8,
+            }).start()
+          }
+          style={({ focused }) => [
+            styles.ctaButton,
+            focused && styles.ctaButtonFocused,
+            selectedServices.length === 0 && styles.ctaButtonDisabled,
+          ]}
+          disabled={selectedServices.length === 0}
+        >
+          <Text style={styles.ctaText}>
+            {selectedServices.length === 0 ? 'Select at least one' : 'Next'}
+          </Text>
+        </Pressable>
+      </Animated.View>
     </ScrollView>
   );
 }
@@ -299,7 +297,10 @@ function MarketPickerStep({
         <Pressable
           testID="onboarding-skip-market"
           onPress={onComplete}
-          style={styles.skipButton}
+          style={({ focused }) => [
+            styles.skipButton,
+            Platform.isTV && focused && styles.skipButtonFocused,
+          ]}
         >
           <Text style={styles.skipText}>Skip</Text>
         </Pressable>
@@ -392,7 +393,10 @@ function TeamPickerStep({
         <Pressable
           testID="onboarding-skip-teams"
           onPress={onComplete}
-          style={styles.skipButton}
+          style={({ focused }) => [
+            styles.skipButton,
+            Platform.isTV && focused && styles.skipButtonFocused,
+          ]}
         >
           <Text style={styles.skipText}>Skip</Text>
         </Pressable>
@@ -446,6 +450,8 @@ function ServiceChip({
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const { width } = useWindowDimensions();
   const sizes = getSizesForWidth(width);
+  // tvOS: scaling the chip makes it grow past the row and overlap neighbors; use the white focus border only.
+  const focusScale = Platform.isTV ? 1 : sizes.focusScale;
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -454,7 +460,7 @@ function ServiceChip({
         onPress={onPress}
         onFocus={() =>
           Animated.spring(scaleAnim, {
-            toValue: sizes.focusScale,
+            toValue: focusScale,
             useNativeDriver: true,
             friction: 8,
           }).start()
@@ -648,6 +654,11 @@ const styles = StyleSheet.create({
   skipButton: {
     paddingHorizontal: 32,
     paddingVertical: 18,
+  },
+  skipButtonFocused: {
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    borderRadius: 8,
   },
   skipText: {
     color: '#8B95A5',

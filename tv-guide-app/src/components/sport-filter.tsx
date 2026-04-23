@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import {
   Animated,
   FlatList,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -17,13 +18,25 @@ interface SportFilterProps {
 }
 
 export function SportFilter({ selected, onSelect, sizes }: SportFilterProps) {
-  const dynamicStyles = useMemo(() => ({
-    container: { height: sizes.filterHeight + 16, marginBottom: sizes.rowPadding < 32 ? 4 : 8 },
-    listContent: { paddingHorizontal: sizes.rowPadding, gap: sizes.rowPadding < 32 ? 8 : 12 },
-    chipLabel: { fontSize: sizes.rowPadding < 32 ? 14 : 18 },
-    chipIcon: { fontSize: sizes.rowPadding < 32 ? 16 : 20 },
-    chip: { paddingHorizontal: sizes.rowPadding < 32 ? 14 : 20, paddingVertical: sizes.rowPadding < 32 ? 8 : 10 },
-  }), [sizes]);
+  const dynamicStyles = useMemo(() => {
+    // Extra vertical space so 2px focus border (and any scale) isn’t clipped by the row / FlatList.
+    const listPadY = 6;
+    return {
+      container: {
+        minHeight: sizes.filterHeight + 16 + listPadY * 2,
+        marginBottom: sizes.rowPadding < 32 ? 4 : 8,
+        justifyContent: 'center',
+      } as const,
+      listContent: {
+        paddingHorizontal: sizes.rowPadding,
+        paddingVertical: listPadY,
+        gap: sizes.rowPadding < 32 ? 8 : 12,
+      },
+      chipLabel: { fontSize: sizes.rowPadding < 32 ? 14 : 18 },
+      chipIcon: { fontSize: sizes.rowPadding < 32 ? 16 : 20 },
+      chip: { paddingHorizontal: sizes.rowPadding < 32 ? 14 : 20, paddingVertical: sizes.rowPadding < 32 ? 8 : 10 },
+    };
+  }, [sizes]);
 
   return (
     <View testID="sport-filter" style={dynamicStyles.container}>
@@ -31,6 +44,7 @@ export function SportFilter({ selected, onSelect, sizes }: SportFilterProps) {
         horizontal
         data={SPORT_FILTERS}
         keyExtractor={(item) => item.id}
+        removeClippedSubviews={false}
         renderItem={({ item }) => (
           <FilterChip
             label={item.label}
@@ -63,15 +77,20 @@ function FilterChip({
   sizes: ResponsiveSizes;
   dynamicStyles: Record<string, object>;
 }) {
+  // Large TV scale + tight row height clips the focus border; use app focus scale and milder on TV.
+  const focusTo = useMemo(
+    () => (Platform.isTV ? Math.min(1.04, sizes.focusScale) : 1.1),
+    [sizes.focusScale],
+  );
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handleFocus = useCallback(() => {
     Animated.spring(scaleAnim, {
-      toValue: 1.1,
+      toValue: focusTo,
       useNativeDriver: true,
       friction: 8,
     }).start();
-  }, [scaleAnim]);
+  }, [scaleAnim, focusTo]);
 
   const handleBlur = useCallback(() => {
     Animated.spring(scaleAnim, {

@@ -2,6 +2,7 @@ import React, { useCallback, useRef } from 'react';
 import {
   Animated,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -20,13 +21,18 @@ interface ServicePickerModalProps {
 function ServiceOption({
   service,
   onPress,
+  hasTVPreferredFocus,
 }: {
   service: StreamingService;
   onPress: () => void;
+  hasTVPreferredFocus?: boolean;
 }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handleFocus = useCallback(() => {
+    if (Platform.isTV) {
+      return;
+    }
     Animated.spring(scaleAnim, {
       toValue: 1.05,
       useNativeDriver: true,
@@ -35,6 +41,9 @@ function ServiceOption({
   }, [scaleAnim]);
 
   const handleBlur = useCallback(() => {
+    if (Platform.isTV) {
+      return;
+    }
     Animated.spring(scaleAnim, {
       toValue: 1,
       useNativeDriver: true,
@@ -42,24 +51,29 @@ function ServiceOption({
     }).start();
   }, [scaleAnim]);
 
-  return (
-    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-      <Pressable
-        testID={`service-option-${service.id}`}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onPress={onPress}
-        style={({ focused }) => [
-          styles.serviceOption,
-          focused && styles.serviceOptionFocused,
-        ]}
-      >
-        <View style={[styles.serviceDot, { backgroundColor: service.color }]} />
-        <Text style={styles.serviceName}>{service.name}</Text>
-        <Text style={styles.launchArrow}>→</Text>
-      </Pressable>
-    </Animated.View>
+  const body = (
+    <Pressable
+      testID={`service-option-${service.id}`}
+      hasTVPreferredFocus={hasTVPreferredFocus}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      onPress={onPress}
+      style={({ focused }) => [
+        styles.serviceOption,
+        focused && styles.serviceOptionFocused,
+      ]}
+    >
+      <View style={[styles.serviceDot, { backgroundColor: service.color }]} />
+      <Text style={styles.serviceName}>{service.name}</Text>
+      <Text style={styles.launchArrow}>→</Text>
+    </Pressable>
   );
+
+  // Animated.View can confuse the Apple TV focus engine; use plain view on TV.
+  if (Platform.isTV) {
+    return <View>{body}</View>;
+  }
+  return <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>{body}</Animated.View>;
 }
 
 export function ServicePickerModal({
@@ -87,16 +101,29 @@ export function ServicePickerModal({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <View testID="service-picker-modal" style={styles.sheet}>
+      {/* Do not wrap the sheet in a full-screen Pressable: on tvOS the backdrop
+        steals the focus path from inner rows. Backdrop is non-focusable on TV. */}
+      <View style={styles.backdrop} pointerEvents="box-none">
+        <Pressable
+          accessibilityLabel="Close provider list"
+          style={StyleSheet.absoluteFill}
+          onPress={onClose}
+          {...(Platform.isTV ? { focusable: false } : {})}
+        />
+        <View
+          testID="service-picker-modal"
+          style={styles.sheet}
+          pointerEvents="box-none"
+        >
           <Text style={styles.title}>Available on</Text>
           <Text style={styles.subtitle} numberOfLines={1}>{title}</Text>
 
           <View style={styles.serviceList}>
-            {services.map((svc) => (
+            {services.map((svc, index) => (
               <ServiceOption
                 key={svc.id}
                 service={svc}
+                hasTVPreferredFocus={Platform.isTV && index === 0}
                 onPress={() => handleLaunch(svc.id)}
               />
             ))}
@@ -113,7 +140,7 @@ export function ServicePickerModal({
             <Text style={styles.cancelText}>Cancel</Text>
           </Pressable>
         </View>
-      </Pressable>
+      </View>
     </Modal>
   );
 }
@@ -131,6 +158,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sheet: {
+    zIndex: 1,
     backgroundColor: '#1A1F2E',
     borderRadius: 20,
     padding: 28,

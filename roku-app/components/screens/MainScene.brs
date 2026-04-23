@@ -29,6 +29,13 @@ sub Init()
     m.pickerServices = []
 
     m.EVENTS_BASE_Y = 120
+    ' Wider cards; 3+ in All Sports = horizontal pan inside viewport
+    m.CARD_W = 350
+    m.CARD_H = 200
+    m.CARD_H_GAP = 12
+    m.CARD_V_GAP = 12
+    m.CARDS_PER_ROW = 3
+    m.ROW_VIEW_W = 1150
 
     m.dateLabel.text = GetTodayDateString()
     buildSportPills()
@@ -43,7 +50,7 @@ sub Init()
     updateSportPillVisuals()
 end sub
 
-' ─── SPORT FILTER PILLS ───
+' --- SPORT FILTER PILLS ---
 
 sub buildSportPills()
     filters = GetSportFilters()
@@ -106,7 +113,7 @@ sub cycleSport(direction as Integer)
     filterAndDisplayEvents()
 end sub
 
-' ─── DATA ───
+' --- DATA ---
 
 sub onEventsLoaded()
     m.loadingLabel.visible = false
@@ -127,7 +134,7 @@ sub onFetchError()
     m.loadingLabel.text = m.fetchTask.error
 end sub
 
-' ─── FILTERING ───
+' --- FILTERING ---
 
 sub filterAndDisplayEvents()
     filters = GetSportFilters()
@@ -178,11 +185,56 @@ sub filterAndDisplayEvents()
     displayEvents(filtered, currentSport)
 end sub
 
-' ─── RENDERING ───
+' Horizontal scroll in All Sports row (m.rowHContent) so 4+ games stay reachable
+sub updateRowHScroll(rowIdx as Integer, focusCol as Integer)
+    if m.rowHContent = invalid or rowIdx < 0 or rowIdx >= m.rowHContent.Count() then return
+    rc = m.rowHContent[rowIdx]
+    if rc = invalid then return
+    if rowIdx >= m.cardGrid.Count() then return
+    row = m.cardGrid[rowIdx]
+    n = row.Count()
+    vW = m.ROW_VIEW_W
+    ' BrightScript: "step" is reserved (for ... step)
+    cardStep = m.CARD_W + m.CARD_H_GAP
+    if n = 0 then return
+    totalW = n * m.CARD_W
+    if n > 1 then totalW = totalW + (n - 1) * m.CARD_H_GAP
+    minH = vW - totalW
+    if minH > 0 then minH = 0
+    c = focusCol
+    if c < 0 then c = 0
+    if c > n - 1 then c = n - 1
+    cardL = c * cardStep
+    cent = (vW - m.CARD_W) / 2
+    h = cent - cardL
+    if h < minH then h = minH
+    if h > 0 then h = 0
+    ' (Do not index-assign m.rowHScroll; roList from "[]" can throw at runtime. Translation is the source of truth.)
+    rowTy = 8
+    t0 = rc.translation
+    if t0 <> invalid and t0.Count() > 1 then rowTy = t0[1]
+    rc.translation = [h, rowTy]
+    cL = m.rowChevronL[rowIdx]
+    cR = m.rowChevronR[rowIdx]
+    if cL = invalid or cR = invalid then return
+    cL.visible = h < 0
+    cR.visible = h > minH
+    ' Use explicit compare (some Roku BS builds reject "if not (expr)")
+    if totalW <= m.ROW_VIEW_W then
+        cL.visible = false
+        cR.visible = false
+    end if
+end sub
+
+' --- RENDERING ---
 
 sub displayEvents(events as Object, currentSport as String)
     m.eventsGroup.RemoveChildrenIndex(m.eventsGroup.GetChildCount(), 0)
     m.cardGrid = []
+    m.cardRowBaseY = []
+    m.rowHContent = []
+    m.rowChevronL = []
+    m.rowChevronR = []
 
     if events.Count() = 0
         m.emptyLabel.visible = true
@@ -237,27 +289,85 @@ sub renderBySport(events as Object)
                 label = label + " (" + liveCount.ToStr() + " LIVE)"
             end if
 
+            countGames = sportEvents.Count()
+
+            ' One header row: sport (left) and optional "N games..." (right) — not stacked
             sLbl = CreateObject("roSGNode", "Label")
             sLbl.text = label
             sLbl.font = "font:SmallBoldSystemFont"
             sLbl.color = "#FFFFFF"
+            sLbl.width = 520
             sLbl.translation = [0, yPos]
             m.eventsGroup.AppendChild(sLbl)
-            yPos = yPos + 32
+            if countGames > 3
+                capR = CreateObject("roSGNode", "Label")
+                capR.text = countGames.ToStr() + " games. Press right arrow to see more"
+                capR.font = "font:SmallestSystemFont"
+                capR.color = "#6B7A8C"
+                capR.width = m.ROW_VIEW_W - 520
+                capR.horizAlign = "right"
+                capR.translation = [520, yPos]
+                m.eventsGroup.AppendChild(capR)
+            end if
+            yPos = yPos + 30
+
+            rowY = yPos
+            rowShell = CreateObject("roSGNode", "Group")
+            rowShell.translation = [0, rowY]
+            ' Group clipping/width/height are not reliable across Roku OS builds; avoid
+
+            cL = CreateObject("roSGNode", "Label")
+            cL.id = "rowChevL"
+            cL.text = "<<"
+            cL.font = "font:MediumSystemFont"
+            cL.color = "#5C6B7E"
+            cL.visible = false
+            cR = CreateObject("roSGNode", "Label")
+            cR.id = "rowChevR"
+            cR.text = ">>"
+            cR.font = "font:MediumSystemFont"
+            cR.color = "#5C6B7E"
+            cR.visible = false
+
+            rowContentY = 8
+            chY = rowContentY + 70
+            cL.translation = [2, chY]
+            cR.translation = [m.ROW_VIEW_W - 30, chY]
+
+            rowContent = CreateObject("roSGNode", "Group")
+            rowContent.translation = [0, rowContentY]
+            rowShell.AppendChild(rowContent)
+            rowShell.AppendChild(cL)
+            rowShell.AppendChild(cR)
 
             rowCards = []
             xPos = 0
-            cardCount = 0
             for each evt in sportEvents
-                if cardCount >= 4 then exit for
-                card = buildCard(evt, xPos, yPos)
-                m.eventsGroup.AppendChild(card)
+                card = buildCard(evt, xPos, 0)
+                rowContent.AppendChild(card)
                 rowCards.Push({ node: card, evt: evt })
-                xPos = xPos + 285
-                cardCount = cardCount + 1
+                xPos = xPos + m.CARD_W + m.CARD_H_GAP
             end for
             m.cardGrid.Push(rowCards)
-            yPos = yPos + 200
+            m.cardRowBaseY.Push(rowY + rowContentY)
+            m.rowHContent.Push(rowContent)
+            m.rowChevronL.Push(cL)
+            m.rowChevronR.Push(cR)
+            m.eventsGroup.AppendChild(rowShell)
+
+            rowIdx = m.rowHContent.Count() - 1
+            totalRowW = countGames * m.CARD_W
+            if countGames > 1
+                totalRowW = totalRowW + (countGames - 1) * m.CARD_H_GAP
+            end if
+            if totalRowW > m.ROW_VIEW_W
+                updateRowHScroll(rowIdx, 0)
+            else
+                cL.visible = false
+                cR.visible = false
+            end if
+
+            yPos = yPos + m.CARD_H + 28
         end if
     end for
 
@@ -328,12 +438,25 @@ sub renderByTime(events as Object)
     if m.maxScroll < 0 then m.maxScroll = 0
 end sub
 
+sub pushTimeRowToGrid(rowCards as Object)
+    m.cardGrid.Push(rowCards)
+    if rowCards = invalid or rowCards.Count() = 0 then return
+    b = rowCards[0].node.translation[1]
+    m.cardRowBaseY.Push(b)
+    m.rowHContent.Push(invalid)
+    m.rowChevronL.Push(invalid)
+    m.rowChevronR.Push(invalid)
+end sub
+
 function renderTimeSection(title as String, count as Integer, events as Object, yPos as Integer, isLive as Boolean) as Integer
+    ' One horizontal band: title, LIVE chip; "N games" one px below title (between same-y and +3)
+    rowY = yPos + 1
+    subY = rowY + 1
     titleLbl = CreateObject("roSGNode", "Label")
     titleLbl.text = title
     titleLbl.font = "font:MediumBoldSystemFont"
     titleLbl.color = "#FFFFFF"
-    titleLbl.translation = [0, yPos]
+    titleLbl.translation = [0, rowY]
     m.eventsGroup.AppendChild(titleLbl)
 
     if isLive
@@ -341,7 +464,7 @@ function renderTimeSection(title as String, count as Integer, events as Object, 
         liveBadge.width = 65
         liveBadge.height = 24
         liveBadge.color = "#FF3B30"
-        liveBadge.translation = [180, yPos + 3]
+        liveBadge.translation = [180, rowY]
         liveLbl = CreateObject("roSGNode", "Label")
         liveLbl.text = count.ToStr() + " LIVE"
         liveLbl.font = "font:SmallestBoldSystemFont"
@@ -357,9 +480,9 @@ function renderTimeSection(title as String, count as Integer, events as Object, 
     subLbl.font = "font:SmallSystemFont"
     subLbl.color = "#8B95A5"
     if isLive
-        subLbl.translation = [255, yPos + 5]
+        subLbl.translation = [255, subY]
     else
-        subLbl.translation = [180, yPos + 5]
+        subLbl.translation = [180, subY]
     end if
     subLbl.text = count.ToStr() + suffix
     m.eventsGroup.AppendChild(subLbl)
@@ -369,30 +492,30 @@ function renderTimeSection(title as String, count as Integer, events as Object, 
     xPos = 0
     cardCount = 0
     for each evt in events
-        if cardCount > 0 and cardCount mod 4 = 0
+        if cardCount > 0 and cardCount mod m.CARDS_PER_ROW = 0
             m.cardGrid.Push(rowCards)
             rowCards = []
-            yPos = yPos + 200
+            yPos = yPos + m.CARD_H + m.CARD_V_GAP
             xPos = 0
         end if
 
         card = buildCard(evt, xPos, yPos)
         m.eventsGroup.AppendChild(card)
         rowCards.Push({ node: card, evt: evt })
-        xPos = xPos + 285
+        xPos = xPos + m.CARD_W + m.CARD_H_GAP
         cardCount = cardCount + 1
     end for
 
-    if rowCards.Count() > 0 then m.cardGrid.Push(rowCards)
-    yPos = yPos + 210
+    if rowCards.Count() > 0 then pushTimeRowToGrid(rowCards)
+    yPos = yPos + m.CARD_H + 20
     return yPos
 end function
 
-' ─── CARD BUILDER ───
+' --- CARD BUILDER ---
 
 function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
-    cardW = 275
-    cardH = 185
+    cardW = m.CARD_W
+    cardH = m.CARD_H
 
     card = CreateObject("roSGNode", "Rectangle")
     card.width = cardW
@@ -405,18 +528,25 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
         status = evt.status
     end if
 
+    ' Inset the pill from card edge; leave room for background past the text (no label width = no ellipsis)
+    badgeLeftX = 8
     badge = CreateObject("roSGNode", "Rectangle")
-    badge.translation = [12, 12]
+    badge.translation = [badgeLeftX, 12]
     badge.height = 24
     badgeTxt = CreateObject("roSGNode", "Label")
-    badgeTxt.translation = [8, 3]
+    badgeTxt.translation = [6, 3]
     badgeTxt.font = "font:SmallestSystemFont"
     badgeTxt.color = "#FFFFFF"
 
+    padH = 6
     if status = "live"
         badge.color = "#FF3B30"
-        badgeTxt.text = chr(9679) + " LIVE"
-        badge.width = 65
+        liveT = chr(9679) + " LIVE"
+        badgeTxt.text = liveT
+        textW = MeasureSmallestSystemFontLineWidth(liveT)
+        if textW < 1 then textW = 50
+        ' Slightly less padding on the right; bullet + roFont vs Label left more room on the right
+        badgeW = padH + textW + 4
     else if status = "upcoming"
         badge.color = "#2D3548"
         timeStr = ""
@@ -424,20 +554,35 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
             timeStr = FormatEventTime(evt.startTime)
         end if
         badgeTxt.text = timeStr
-        badge.width = 82
+        textW = MeasureSmallestSystemFontLineWidth(timeStr)
+        ' If roFont failed, approximate generously so the bar still wraps the time string
+        if textW < 1
+            textW = 16 + Len(timeStr) * 6
+        end if
+        badgeW = padH * 2 + textW
+        if badgeW < 64 then badgeW = 64
+        if badgeW > cardW - badgeLeftX - 8 then badgeW = cardW - badgeLeftX - 8
     else
         badge.color = "#4A5568"
-        badgeTxt.text = "FINAL"
-        badge.width = 58
+        finalT = "FINAL"
+        badgeTxt.text = finalT
+        textW = MeasureSmallestSystemFontLineWidth(finalT)
+        if textW < 1 then textW = 32
+        badgeW = padH * 2 + textW
     end if
+    badge.width = badgeW
     badge.AppendChild(badgeTxt)
     card.AppendChild(badge)
 
     channel = ""
     if evt.HasField("channel") and evt.channel <> invalid then channel = evt.channel
+    ' Channel name on the right, next to the time/LIVE badge (right-aligned in its column)
+    chGutter = 8
+    chW = cardW - chGutter * 2 - badgeLeftX - badge.width - 6
+    if chW < 28 then chW = 28
     chLbl = CreateObject("roSGNode", "Label")
-    chLbl.translation = [cardW - 90, 14]
-    chLbl.width = 78
+    chLbl.translation = [badgeLeftX + badge.width + 6, 14]
+    chLbl.width = chW
     chLbl.horizAlign = "right"
     chLbl.font = "font:SmallestSystemFont"
     chLbl.color = "#8B95A5"
@@ -454,7 +599,7 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
     if homeTeam <> "" and awayTeam <> ""
         hLbl = CreateObject("roSGNode", "Label")
         hLbl.translation = [12, 48]
-        hLbl.width = 200
+        hLbl.width = cardW - 70
         hLbl.font = "font:SmallBoldSystemFont"
         hLbl.color = "#FFFFFF"
         hLbl.maxLines = 1
@@ -463,7 +608,7 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
 
         aLbl = CreateObject("roSGNode", "Label")
         aLbl.translation = [12, 72]
-        aLbl.width = 200
+        aLbl.width = cardW - 70
         aLbl.font = "font:SmallBoldSystemFont"
         aLbl.color = "#FFFFFF"
         aLbl.maxLines = 1
@@ -505,25 +650,17 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
         card.AppendChild(tL)
     end if
 
-    league = ""
-    if evt.HasField("league") and evt.league <> invalid then league = evt.league
-    lgL = CreateObject("roSGNode", "Label")
-    lgL.translation = [12, 104]
-    lgL.font = "font:SmallestSystemFont"
-    lgL.color = "#8B95A5"
-    lgL.text = UCase(league)
-    card.AppendChild(lgL)
-
-    svcY = 132
+    ' Colored service pills at bottom of card
+    badgeH = 22
+    svcY = cardH - badgeH - 26
+    if svcY < 96 then svcY = 96
     svcX = 12
     svcCsv = ""
     if evt.HasField("servicesCsv") and evt.servicesCsv <> invalid
         svcCsv = evt.servicesCsv
     end if
     svcIdList = SplitCsv(svcCsv)
-    badgeCount = 0
     for each svcId in svcIdList
-        if badgeCount >= 2 then exit for
         svc = GetServiceById(svcId)
         if svc <> invalid
             shortName = svc.name
@@ -531,14 +668,12 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
             bw = 80
             if Len(shortName) <= 4 then bw = 60
             if svcX + bw > cardW - 10 then exit for
-
             svcBg = CreateObject("roSGNode", "Rectangle")
             svcBg.width = bw
-            svcBg.height = 22
+            svcBg.height = badgeH
             svcBg.color = svc.color
             svcBg.translation = [svcX, svcY]
-
-                svcLbl = CreateObject("roSGNode", "Label")
+            svcLbl = CreateObject("roSGNode", "Label")
             svcLbl.text = shortName
             svcLbl.font = "font:SmallestSystemFont"
             svcLbl.color = "#FFFFFF"
@@ -547,9 +682,7 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
             svcLbl.horizAlign = "center"
             svcBg.AppendChild(svcLbl)
             card.AppendChild(svcBg)
-
             svcX = svcX + bw + 6
-            badgeCount = badgeCount + 1
         end if
     end for
 
@@ -599,7 +732,7 @@ function buildCard(evt as Object, xPos as Integer, yPos as Integer) as Object
     return card
 end function
 
-' ─── CARD FOCUS ───
+' --- CARD FOCUS ---
 
 sub updateCardFocus()
     for r = 0 to m.cardGrid.Count() - 1
@@ -625,17 +758,28 @@ sub updateCardFocus()
         row = m.cardGrid[m.focusRow]
         if m.focusCol < row.Count()
             cardInfo = row[m.focusCol]
-            cardY = cardInfo.node.translation[1]
+            if m.cardRowBaseY.Count() = m.cardGrid.Count() and m.focusRow < m.cardRowBaseY.Count()
+                cardY = m.cardRowBaseY[m.focusRow]
+            else
+                cardY = cardInfo.node.translation[1]
+            end if
             visibleTop = m.scrollOffset
             visibleBottom = m.scrollOffset + 550
 
             if cardY < visibleTop
                 m.scrollOffset = cardY - 30
                 if m.scrollOffset < 0 then m.scrollOffset = 0
-            else if cardY + 185 > visibleBottom
-                m.scrollOffset = cardY + 185 - 550
+            else if cardY + m.CARD_H > visibleBottom
+                m.scrollOffset = cardY + m.CARD_H - 550
             end if
             m.eventsGroup.translation = [60, m.EVENTS_BASE_Y - m.scrollOffset]
+
+            if m.rowHContent <> invalid and m.focusRow < m.rowHContent.Count()
+                rch = m.rowHContent[m.focusRow]
+                if rch <> invalid
+                    updateRowHScroll(m.focusRow, m.focusCol)
+                end if
+            end if
         end if
     end if
 
@@ -738,7 +882,7 @@ sub hideServicePicker()
     updateCardFocus()
 end sub
 
-' ─── SETTINGS ───
+' --- SETTINGS ---
 
 sub buildServiceList()
     m.serviceListGroup.RemoveChildrenIndex(m.serviceListGroup.GetChildCount(), 0)
@@ -827,7 +971,7 @@ sub toggleService()
     SaveSelectedServices(newSelected)
 end sub
 
-' ─── TAB SWITCHING ───
+' --- TAB SWITCHING ---
 
 sub showGuide()
     m.currentTab = 0
@@ -848,21 +992,14 @@ sub showSettings()
     updateSettingsFocus()
 end sub
 
-' ─── DEEP LINKING ───
+' --- DEEP LINKING ---
 
 function handleDeepLink(params as Object) as Boolean
-    if params = invalid then return false
-    if params.DoesExist("contentId")
-        svc = GetServiceById(params.contentId)
-        if svc <> invalid
-            LaunchChannel(svc.rokuChannelId, "")
-            return true
-        end if
-    end if
+    ' Roku certification: do not launch other channels; LaunchChannel is not a built-in.
     return false
 end function
 
-' ─── KEY HANDLING ───
+' --- KEY HANDLING ---
 
 function OnKeyEvent(key as String, press as Boolean) as Boolean
     if not press then return false

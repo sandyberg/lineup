@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Platform,
   Pressable,
@@ -8,6 +8,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { TvosTabBar } from '@/constants/theme';
 import { fetchTeams } from '@/lib/api';
 import { TeamInfo } from '@/lib/types';
 import { SPORT_FILTERS } from '@/lib/constants';
@@ -42,6 +43,22 @@ export function TeamPicker({ selectedTeams, onToggle, selectedSports, onToggleSp
   const isMobile = width < 600;
   const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
   const isCompact = isMobile || isLandscapeMobile || compact;
+  /** iOS/phone: actual TextInput focus. */
+  const [searchFocused, setSearchFocused] = useState(false);
+  /**
+   * tvOS: `TextInput.onFocus` fires on `textInputDidBeginEditing` (keyboard), not UIFocus.
+   * Put UIFocus on the wrapper Pressable so the field recolors with the D-pad highlight.
+   */
+  const [searchShellTvFocused, setSearchShellTvFocused] = useState(false);
+  const teamSearchInputRef = useRef<TextInput>(null);
+  const isTv = Platform.isTV;
+  const showFocus = isTv;
+  const tvFieldActive = searchShellTvFocused || searchFocused;
+  /** Same logic as `MarketPicker`: dim on the dark bar; white on the focused surface. */
+  const tvTextColor = tvFieldActive
+    ? TvosTabBar.labelOnBarSelected
+    : TvosTabBar.labelDim;
+  const tvInputColor = search.trim() === '' ? 'transparent' : tvTextColor;
 
   useEffect(() => {
     fetchTeams().then((t) => {
@@ -97,6 +114,7 @@ export function TeamPicker({ selectedTeams, onToggle, selectedSports, onToggleSp
   const chipSize = isCompact
     ? { paddingHorizontal: 10, paddingVertical: 7 }
     : { paddingHorizontal: 14, paddingVertical: 9 };
+  const inputH = isCompact ? 38 : 44;
 
   return (
     <View testID="team-picker" style={styles.wrapper}>
@@ -113,10 +131,11 @@ export function TeamPicker({ selectedTeams, onToggle, selectedSports, onToggleSp
                   key={sport.id}
                   testID={`sport-fav-${sport.id}`}
                   onPress={() => onToggleSport(sport.id)}
-                  style={[
+                  style={({ focused }) => [
                     styles.chip,
                     chipSize,
                     isSelected && styles.sportChipSelected,
+                    showFocus && focused && styles.chipFocused,
                   ]}
                 >
                   <Text style={{ fontSize: 14 }}>{sport.icon}</Text>
@@ -134,14 +153,77 @@ export function TeamPicker({ selectedTeams, onToggle, selectedSports, onToggleSp
         Teams
       </Text>
 
-      <TextInput
-        testID="team-search"
-        style={[styles.searchInput, isCompact && { fontSize: 14, height: 38 }]}
-        placeholder="Search teams..."
-        placeholderTextColor="#8B95A5"
-        value={search}
-        onChangeText={setSearch}
-      />
+      {isTv ? (
+        <Pressable
+          onPress={() => {
+            teamSearchInputRef.current?.focus();
+          }}
+          onFocus={() => setSearchShellTvFocused(true)}
+          onBlur={() => setSearchShellTvFocused(false)}
+          style={[
+            styles.searchInput,
+            { height: inputH },
+            isCompact && { height: 38 },
+            !tvFieldActive && styles.searchInputTvUnfocused,
+            tvFieldActive && styles.searchInputTvFocused,
+          ]}
+        >
+          {search.trim() === '' && (
+            <View
+              style={[styles.searchPlaceholderBack, { height: inputH }]}
+              pointerEvents="none"
+              collapsable={false}
+            >
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.searchPlaceholderText,
+                  { color: tvTextColor, fontSize: isCompact ? 14 : 15 },
+                ]}
+              >
+                Search teams...
+              </Text>
+            </View>
+          )}
+          <TextInput
+            ref={teamSearchInputRef}
+            testID="team-search"
+            focusable={false}
+            style={[
+              styles.searchFieldTv,
+              {
+                height: inputH,
+                minHeight: inputH,
+                color: tvInputColor,
+              },
+              isCompact && { fontSize: 14, height: 38, minHeight: 38 },
+            ]}
+            placeholder=""
+            value={search}
+            onChangeText={setSearch}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            selectionColor={searchFocused ? TvosTabBar.labelOnBarSelected : undefined}
+          />
+        </Pressable>
+      ) : (
+        <TextInput
+          testID="team-search"
+          style={[
+            styles.searchInput,
+            isCompact && { fontSize: 14, height: 38 },
+            searchFocused && styles.searchInputFocused,
+            // Web: strip browser’s default `:focus` outline so only the RN border ring shows.
+            Platform.OS === 'web' && ({ outlineStyle: 'none' } as object),
+          ]}
+          placeholder="Search teams..."
+          placeholderTextColor="#8B95A5"
+          value={search}
+          onChangeText={setSearch}
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
+        />
+      )}
 
       {grouped.map(([league, leagueTeams]) => {
         const isExpanded = isSearching || expandedLeague === league;
@@ -152,7 +234,10 @@ export function TeamPicker({ selectedTeams, onToggle, selectedSports, onToggleSp
             <Pressable
               testID={`league-header-${league}`}
               onPress={() => setExpandedLeague(isExpanded && !isSearching ? null : league)}
-              style={styles.leagueHeader}
+              style={({ focused }) => [
+                styles.leagueHeader,
+                showFocus && focused && styles.leagueHeaderFocused,
+              ]}
             >
               <Text style={[styles.leagueLabel, isCompact && { fontSize: 16 }]}>
                 {league}
@@ -176,10 +261,11 @@ export function TeamPicker({ selectedTeams, onToggle, selectedSports, onToggleSp
                       key={team.teamId}
                       testID={`team-chip-${team.teamId}`}
                       onPress={() => onToggle(team.teamId)}
-                      style={[
+                      style={({ focused }) => [
                         styles.chip,
                         chipSize,
                         isSelected && styles.teamChipSelected,
+                        showFocus && focused && styles.chipFocused,
                       ]}
                     >
                       <Text
@@ -239,19 +325,59 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     fontSize: 15,
     marginBottom: 12,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#2D3548',
+    overflow: 'hidden',
+  },
+  /** TV: TextInput above backing placeholder `Text` so UIFocus still targets it. */
+  searchFieldTv: {
+    width: '100%',
+    zIndex: 1,
+    paddingHorizontal: 14,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    fontSize: 15,
+  },
+  searchPlaceholderBack: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+  },
+  searchPlaceholderText: {
+    fontWeight: '500',
+  },
+  searchInputTvUnfocused: {
+    borderWidth: 0,
+    backgroundColor: '#1A1F2E',
+  },
+  searchInputTvFocused: {
+    /** Match focused chips: elevated navy fill with the same white focus ring. */
+    backgroundColor: '#1A1F2E',
+    borderColor: '#FFFFFF',
+    borderWidth: 3,
+  },
+  searchInputFocused: {
+    borderColor: '#FFFFFF',
+    borderWidth: 3,
   },
   leagueSection: {
     marginBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1A1F2E',
   },
   leagueHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1A1F2E',
+    paddingHorizontal: 6,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  leagueHeaderFocused: {
+    borderColor: '#FFFFFF',
   },
   leagueLabel: {
     color: '#FFFFFF',
@@ -301,8 +427,12 @@ const styles = StyleSheet.create({
     borderColor: '#3B82F6',
   },
   sportChipSelected: {
-    backgroundColor: '#8B5CF6',
-    borderColor: '#8B5CF6',
+    backgroundColor: '#3B82F6',
+    borderColor: '#3B82F6',
+  },
+  chipFocused: {
+    borderColor: '#FFFFFF',
+    borderWidth: 3,
   },
   chipText: {
     color: '#FFFFFF',

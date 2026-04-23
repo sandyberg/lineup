@@ -126,8 +126,21 @@ The channel works for sideloading and development. To publish to the Roku Channe
 
 ### Submission Process
 
-1. Build a release package: `make build` (with `debug=false`)
-2. Log in to https://developer.roku.com/developer-channels
-3. Create a new Public Channel
-4. Upload the `.zip` package, icons, screenshots, and fill in metadata
-5. Submit for certification review (typically 1-2 weeks)
+1. **Bump** `build_version` (and/or `minor_version`) in `manifest` for each new package you submit. Re-uploading the same version often fails with “incorrectly packaged” or a silent reject.
+2. **Sideload** a fresh build: `make build` then `ROKU_IP=… ROKU_PASS=… make deploy`.
+3. **Create a signed store package** — the Roku **Developer Dashboard** expects a **`.pkg` signed on your Roku** (a plain `make build` / `lineup.zip` is for sideloading only and will often be rejected for publishing).
+
+   **In the browser (same IP as dev mode):** open **`http://<ROKU_IP>/plugin_package`**
+
+   - **“Invalid Password” on the Packager is usually the wrong password.** The **Packager** form’s **Password** field is **not** your Roku **web developer password** (the one you use for `make deploy` / `curl` / the Installer). It is the **signing / packaging password** you got when you ran **`genkey`** in a **telnet** session to the Roku (port **8080**). If you never saved it, run `genkey` again in telnet, copy the **Password** line, and use that. (Re-running `genkey` issues a new key; store that password safely. You cannot recover a lost `genkey` password.)
+   - **App name/version** must be filled in (e.g. `Lineup 1.0.1`) — use your `manifest` title and version, usually `Name major.minor.build`.
+   - The **web** login to `plugin_install` / the browser (if it prompts) still uses **`rokudev` + your dev web password** — that is a different password from the Packager **Password** field.
+
+   See Roku’s [Packaging channels](https://developer.roku.com/docs/developer-program/publishing/packaging-channels.md) doc.
+
+4. In [developer.roku.com](https://developer.roku.com) → your channel → **App package** → upload that **`.pkg`**, not the dev zip.
+5. Complete store listing, screenshots, **Submit** for certification (often ~1–2 weeks).
+
+**CLI alternative:** [roku-deploy](https://github.com/rokucommunity/roku-deploy) can `deployAndSignPackage` to your Roku and save the signed `.pkg` under `./out` (Node/npm). From `roku-app/`: `npx roku-deploy` with `host` + `password` in `rokudeploy.json` (do not commit secrets).
+
+**Convenience:** from `roku-app/`, `make package` prints the `plugin_package` URL reminder.

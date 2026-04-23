@@ -144,20 +144,48 @@ export default function GuideScreen() {
             <Pressable
               testID="team-toggle-all"
               onPress={() => setShowMyTeams(false)}
-              style={[styles.teamToggleBtn, !showMyTeams && styles.teamToggleBtnActive, isMobile && styles.teamToggleBtnCompact]}
+              style={({ focused }) => [
+                styles.teamToggleBtn,
+                isMobile && styles.teamToggleBtnCompact,
+                !showMyTeams && styles.teamToggleBtnActive,
+                Platform.isTV && focused && styles.teamToggleBtnFocused,
+              ]}
             >
-              <Text style={[styles.teamToggleText, !showMyTeams && styles.teamToggleTextActive, isMobile && { fontSize: 12 }]}>
-                All Games
-              </Text>
+              {({ focused }) => (
+                <Text
+                  style={[
+                    styles.teamToggleText,
+                    isMobile && { fontSize: 12 },
+                    !showMyTeams && styles.teamToggleTextActive,
+                    Platform.isTV && focused && showMyTeams && styles.teamToggleTextTvInactiveFocused,
+                  ]}
+                >
+                  All Games
+                </Text>
+              )}
             </Pressable>
             <Pressable
               testID="team-toggle-my"
               onPress={() => setShowMyTeams(true)}
-              style={[styles.teamToggleBtn, showMyTeams && styles.teamToggleBtnActive, isMobile && styles.teamToggleBtnCompact]}
+              style={({ focused }) => [
+                styles.teamToggleBtn,
+                isMobile && styles.teamToggleBtnCompact,
+                showMyTeams && styles.teamToggleBtnActive,
+                Platform.isTV && focused && styles.teamToggleBtnFocused,
+              ]}
             >
-              <Text style={[styles.teamToggleText, showMyTeams && styles.teamToggleTextActive, isMobile && { fontSize: 12 }]}>
-                My Favorites
-              </Text>
+              {({ focused }) => (
+                <Text
+                  style={[
+                    styles.teamToggleText,
+                    isMobile && { fontSize: 12 },
+                    showMyTeams && styles.teamToggleTextActive,
+                    Platform.isTV && focused && !showMyTeams && styles.teamToggleTextTvInactiveFocused,
+                  ]}
+                >
+                  My Favorites
+                </Text>
+              )}
             </Pressable>
           </View>
         </View>
@@ -309,6 +337,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 17,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   teamToggleBtnCompact: {
     paddingHorizontal: 10,
@@ -317,6 +347,10 @@ const styles = StyleSheet.create({
   teamToggleBtnActive: {
     backgroundColor: '#FFFFFF',
   },
+  teamToggleBtnFocused: {
+    borderColor: '#FFFFFF',
+    borderWidth: 3,
+  },
   teamToggleText: {
     color: '#8B95A5',
     fontSize: 14,
@@ -324,5 +358,9 @@ const styles = StyleSheet.create({
   },
   teamToggleTextActive: {
     color: '#000000',
+  },
+  /** The inactive segment is focused: stay readable on the dark track. */
+  teamToggleTextTvInactiveFocused: {
+    color: '#E8EAEF',
   },
 });

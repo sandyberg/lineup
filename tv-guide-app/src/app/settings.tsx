@@ -5,6 +5,7 @@ import { ServiceSelectorContent } from '@/components/service-selector';
 import { TeamPicker } from '@/components/team-picker';
 import { MarketPicker } from '@/components/market-picker';
 import { FeedbackSection } from '@/components/feedback-section';
+import { DeepLinkDevPanel } from '@/components/deep-link-dev-panel';
 import { usePreferences } from '@/hooks/use-preferences';
 
 export default function SettingsScreen() {
@@ -73,6 +74,13 @@ export default function SettingsScreen() {
         />
 
         <View style={styles.divider} />
+
+        {__DEV__ && (
+          <>
+            <DeepLinkDevPanel />
+            <View style={styles.divider} />
+          </>
+        )}
 
         <Text style={[styles.heading, isMobile && { fontSize: 26 }]}>Questions or Suggestions?</Text>
         <FeedbackSection compact={isMobile} />

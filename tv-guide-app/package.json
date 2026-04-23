@@ -3,7 +3,9 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+    "postinstall": "patch-package",
     "start": "expo start",
+    "start:8082": "expo start --port 8082",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -17,6 +19,9 @@
     "prebuild": "expo prebuild --clean",
     "prebuild:tv": "EXPO_TV=1 expo prebuild --clean",
     "smoke:tv:ios": "bash ./scripts/lineup-tvos-local-smoke.sh",
+    "run:tv:sim": "bash ./scripts/lineup-tvos-sim-launch.sh",
+    "ios:tv:nobuild": "bash ./scripts/lineup-tvos-sim-launch.sh",
+    "ios:tv:open": "bash ./scripts/lineup-tvos-sim-open.sh",
     "deploy": "npx expo export -p web && npx eas-cli@latest deploy"
   },
   "dependencies": {
@@ -56,6 +61,7 @@
     "@types/jest": "^30.0.0",
     "@types/react": "~19.2.2",
     "jest": "^30.3.0",
+    "patch-package": "^8.0.1",
     "react-test-renderer": "^19.2.5",
     "ts-jest": "^29.4.9",
     "typescript": "~5.9.2"

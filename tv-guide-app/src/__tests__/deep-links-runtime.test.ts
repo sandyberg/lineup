@@ -40,16 +40,35 @@ describe('launchStreamingApp', () => {
     expect(result).toBe(true);
   });
 
-  it('falls back to web when canOpenURL returns false on native (non-TV)', async () => {
+  it('opens the App Store when canOpenURL is false on iOS and the service has an app id', async () => {
     (Platform as any).OS = 'ios';
     (Platform as any).isTV = false;
     (Linking.canOpenURL as jest.Mock).mockResolvedValue(false);
-    const webUrl = SERVICE_MAP['espn-plus'].deepLinks.web;
+    const storeUrl = 'https://apps.apple.com/app/id317469184';
 
     const result = await launchStreamingApp('espn-plus');
 
+    expect(Linking.openURL).toHaveBeenCalledWith(storeUrl);
+    expect(result).toBe(true);
+  });
+
+  it('falls back to web when canOpenURL is false and there is no App Store id', async () => {
+    (Platform as any).OS = 'ios';
+    (Platform as any).isTV = false;
+    (Linking.canOpenURL as jest.Mock).mockResolvedValue(false);
+    const testId = 'youtube-tv';
+    const original = SERVICE_MAP[testId];
+    (SERVICE_MAP as any)[testId] = {
+      ...original,
+      appStoreId: undefined,
+    };
+    const webUrl = original.deepLinks.web!;
+
+    const result = await launchStreamingApp(testId);
+
     expect(Linking.openURL).toHaveBeenCalledWith(webUrl);
     expect(result).toBe(true);
+    (SERVICE_MAP as any)[testId] = original;
   });
 
   it('returns false when openURL fails and web fallback also fails', async () => {
@@ -99,7 +118,7 @@ describe('launchStreamingApp', () => {
     expect(result).toBe(true);
   });
 
-  it('returns false when canOpenURL is false and no web fallback exists', async () => {
+  it('returns false when canOpenURL is false and there is no store or web fallback', async () => {
     (Platform as any).OS = 'android';
     (Platform as any).isTV = false;
     (Linking.canOpenURL as jest.Mock).mockResolvedValue(false);
@@ -108,6 +127,9 @@ describe('launchStreamingApp', () => {
     (SERVICE_MAP as any)[testId] = {
       ...origService,
       deepLinks: { android: 'app://test', web: undefined },
+      appStoreId: undefined,
+      playStorePackage: undefined,
+      playStorePackageTv: undefined,
     };
 
     const result = await launchStreamingApp(testId);
@@ -162,15 +184,16 @@ describe('launchStreamingApp', () => {
     (SERVICE_MAP as any)[testId] = original;
   });
 
-  it('does not fall back to web on TV when canOpenURL is false', async () => {
+  it('opens the App Store on iOS TV when canOpenURL is false', async () => {
     (Platform as any).OS = 'ios';
     (Platform as any).isTV = true;
     (Linking.canOpenURL as jest.Mock).mockResolvedValue(false);
+    const storeUrl = 'https://apps.apple.com/app/id317469184';
 
     const result = await launchStreamingApp('espn-plus');
 
-    expect(Linking.openURL).not.toHaveBeenCalled();
-    expect(result).toBe(false);
+    expect(Linking.openURL).toHaveBeenCalledWith(storeUrl);
+    expect(result).toBe(true);
   });
 
   it('uses web URL on unrecognized native OS (e.g. future platform)', async () => {

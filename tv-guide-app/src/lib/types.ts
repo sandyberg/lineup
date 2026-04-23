@@ -20,6 +20,20 @@ export interface StreamingService {
   name: string;
   color: string;
   group: ServiceGroup;
+  /**
+   * US App Store numeric id. Used when the native app URL is not openable
+   * (e.g. not installed) to send users to the download page.
+   */
+  appStoreId?: string;
+  /**
+   * Android / Play app id for the phone/tablet app (package name).
+   * Play Store: `?id=…`
+   */
+  playStorePackage?: string;
+  /**
+   * Optional Play package for Android TV when it differs (e.g. Prime Video).
+   */
+  playStorePackageTv?: string;
   deepLinks: {
     /** Apple TV (tvOS). */
     tvos?: string;

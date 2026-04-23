@@ -33,6 +33,26 @@ export const Colors = {
   },
 } as const;
 
+/**
+ * tvOS Guide/Settings (NativeTabs) + `patches/expo-router+55.0.12.patch`:
+ * dim labels on the dark bar; on the *system* light focus pill, labels use app background color.
+ * Custom `Pressable` search fields are not the native tab item — use `focusedSurface` + `labelOnLightFocus`
+ * so the same dark-on-light pairing isn’t “black on black.”
+ */
+export const TvosTabBar = {
+  background: '#0D1117',
+  /** `NativeTabs` default label on the dark bar (app-tabs `TVOS_TAB_DIM`) */
+  labelDim: '#8B9AAC',
+  labelOnBarSelected: '#FFFFFF',
+  /**
+   * Label/icon on the **light** focus state (expo `appearance` patch `["focused"]` →
+   * `color` / `iconColor` = bar background = readable on the white pill)
+   */
+  labelOnLightFocus: '#0D1117',
+  /** ~system light “pill” for custom controls (tabs get this from UIKit) */
+  focusedSurface: '#FFFFFF',
+} as const;
+
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({

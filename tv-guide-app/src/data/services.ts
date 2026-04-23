@@ -6,6 +6,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'YouTube TV',
     color: '#FF0000',
     group: 'major',
+    appStoreId: '1193350206',
+    playStorePackage: 'com.google.android.apps.youtube.unplugged',
     deepLinks: {
       tvos: 'https://tv.youtube.com',
       ios: 'youtubetv://',
@@ -18,6 +20,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'ESPN+',
     color: '#D00',
     group: 'major',
+    appStoreId: '317469184',
+    playStorePackage: 'com.espn.score_center',
     deepLinks: {
       tvos: 'espn://',
       android: 'intent://espn.com#Intent;package=com.espn.score_center;scheme=https;end',
@@ -29,6 +33,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'Peacock',
     color: '#6B3FA0',
     group: 'major',
+    appStoreId: '1508186374',
+    playStorePackage: 'com.peacocktv.peacockandroid',
     deepLinks: {
       tvos: 'peacocktv://',
       android: 'intent://peacocktv.com#Intent;package=com.peacocktv.peacockandroid;scheme=https;end',
@@ -40,6 +46,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'Hulu',
     color: '#1CE783',
     group: 'major',
+    appStoreId: '376510438',
+    playStorePackage: 'com.hulu.plus',
     deepLinks: {
       tvos: 'hulu://',
       android: 'intent://hulu.com#Intent;package=com.hulu.plus;scheme=https;end',
@@ -51,6 +59,9 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'Prime Video',
     color: '#00A8E1',
     group: 'major',
+    appStoreId: '545519333',
+    playStorePackage: 'com.amazon.avod.thirdpartyclient',
+    playStorePackageTv: 'com.amazon.amazonvideo.livingroom',
     deepLinks: {
       tvos: 'aiv://',
       android:
@@ -64,6 +75,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'Paramount+',
     color: '#0064FF',
     group: 'major',
+    appStoreId: '530168168',
+    playStorePackage: 'com.cbs.ott',
     deepLinks: {
       tvos: 'paramountplus://',
       android: 'intent://paramountplus.com#Intent;package=com.cbs.ott;scheme=https;end',
@@ -75,6 +88,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'Apple TV+',
     color: '#555555',
     group: 'major',
+    appStoreId: '1174078549',
+    playStorePackage: 'com.apple.atve.androidtv.appletv',
     deepLinks: {
       tvos: 'videos://',
       android: 'intent://tv.apple.com#Intent;package=com.apple.atve.androidtv.appletv;scheme=https;end',
@@ -86,6 +101,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'MLB.TV',
     color: '#002D72',
     group: 'league',
+    appStoreId: '1219890397',
+    playStorePackage: 'com.bamnetworks.mobile.android.gameday.atbat',
     deepLinks: {
       tvos: 'mlbatbat://',
       android: 'intent://mlb.com#Intent;package=com.bamnetworks.mobile.android.gameday.atbat;scheme=https;end',
@@ -97,6 +114,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'NBA League Pass',
     color: '#1D428A',
     group: 'league',
+    appStoreId: '484672289',
+    playStorePackage: 'com.nbaimd.gametime.nba2011',
     deepLinks: {
       tvos: 'gametime-nba://',
       android: 'intent://nba.com#Intent;package=com.nbaimd.gametime.nba2011;scheme=https;end',
@@ -108,6 +127,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'NFL+',
     color: '#013369',
     group: 'league',
+    appStoreId: '389781154',
+    playStorePackage: 'com.gotv.nflgamecenter.us.lite',
     deepLinks: {
       tvos: 'nflgamecenter://',
       android: 'intent://nfl.com#Intent;package=com.gotv.nflgamecenter.us.lite;scheme=https;end',
@@ -119,6 +140,8 @@ export const STREAMING_SERVICES: StreamingService[] = [
     name: 'Sunday Ticket',
     color: '#FFB612',
     group: 'league',
+    appStoreId: '1193350206',
+    playStorePackage: 'com.google.android.apps.youtube.unplugged',
     deepLinks: {
       tvos: 'https://tv.youtube.com',
       ios: 'youtubetv://',

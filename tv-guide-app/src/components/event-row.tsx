@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Platform, StyleSheet, Text, View } from 'react-native';
 import { EventCard } from './event-card';
 import { SportEvent, StreamingService } from '@/lib/types';
 import { type ResponsiveSizes } from '@/lib/constants';
@@ -36,7 +36,15 @@ export function EventRow({ label, events, userServices, sizes, onShowServicePick
             </Text>
           </View>
         )}
-        <Text style={[styles.count, dynamicStyles.count]}>{events.length} game{events.length !== 1 ? 's' : ''}</Text>
+        <Text
+          style={[
+            styles.count,
+            dynamicStyles.count,
+            Platform.isTV && styles.countTv,
+          ]}
+        >
+          {events.length} game{events.length !== 1 ? 's' : ''}
+        </Text>
       </View>
       <FlatList
         horizontal
@@ -84,5 +92,8 @@ const styles = StyleSheet.create({
   count: {
     color: '#4A5568',
     fontWeight: '500',
+  },
+  countTv: {
+    color: '#9AA5B5',
   },
 });

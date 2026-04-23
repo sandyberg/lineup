@@ -7,30 +7,29 @@ All fields with character limits. Copy/paste directly into App Store Connect.
 ## App Name (30 char max)
 
 ```
-Lineup
+Lineup - Live Sports TV Guide
 ```
 
-**6 / 30**
+**29 / 30**
 
-Backup options if taken:
-- `Lineup TV` (9)
-- `Lineup Sports` (13)
-- `Lineup: Sports Guide` (20)
+Note: "Lineup" alone was taken on Apple. The binary's on-device display
+name (from `app.json` `name`) stays as "Lineup" — this 29-char name is
+just what shows in App Store search and listings.
 
 ---
 
 ## Subtitle (30 char max)
 
 ```
-Live Sports TV Guide
+Never miss a game again
 ```
 
-**20 / 30**
+**23 / 30**
 
-Alternatives:
-- `What sports are on?` (20)
-- `Find live games fast` (20)
-- `Your live sports guide` (22)
+Alternatives considered:
+- `What's on across your services` (30)
+- `Every game, every streamer` (26)
+- `One guide for every streamer` (28)
 
 ---
 

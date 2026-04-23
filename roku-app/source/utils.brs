@@ -6,27 +6,43 @@ function GetApiKey() as String
     return ""
 end function
 
+' Match tv-guide-app `formatEventTime` (date context: today, tomorrow, else weekday)
 function FormatEventTime(isoTimestamp as String) as String
     if isoTimestamp = "" or isoTimestamp = invalid then return ""
 
-    dt = CreateObject("roDateTime")
-    dt.FromISO8601String(isoTimestamp)
-    dt.ToLocalTime()
+    now = CreateObject("roDateTime")
+    now.ToLocalTime()
+    ev = CreateObject("roDateTime")
+    ev.FromISO8601String(isoTimestamp)
+    ev.ToLocalTime()
 
-    hours = dt.GetHours()
-    minutes = dt.GetMinutes()
+    hours = ev.GetHours()
+    minutes = ev.GetMinutes()
     ampm = "AM"
-
     if hours >= 12
         ampm = "PM"
         if hours > 12 then hours = hours - 12
     end if
     if hours = 0 then hours = 12
-
     minuteStr = minutes.ToStr()
     if minutes < 10 then minuteStr = "0" + minuteStr
+    timePart = hours.ToStr() + ":" + minuteStr + " " + ampm
 
-    return hours.ToStr() + ":" + minuteStr + " " + ampm
+    ' Same calendar day as now
+    if now.GetYear() = ev.GetYear() and now.GetMonth() = ev.GetMonth() and now.GetDayOfMonth() = ev.GetDayOfMonth()
+        return timePart
+    end if
+    ' Tomorrow in local time (add 24h; good enough for guide times)
+    tom = CreateObject("roDateTime")
+    tom.FromSeconds(now.AsSeconds() + 24 * 60 * 60)
+    tom.ToLocalTime()
+    if ev.GetYear() = tom.GetYear() and ev.GetMonth() = tom.GetMonth() and ev.GetDayOfMonth() = tom.GetDayOfMonth()
+        return "Tomorrow " + timePart
+    end if
+    days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    w = ev.GetDayOfWeek()
+    if w < 0 or w > 6 then w = 0
+    return days[w] + " " + timePart
 end function
 
 function GetTodayDateString() as String
@@ -59,6 +75,19 @@ function GetMascotName(fullName as String) as String
         return Mid(fullName, lastSpace + 1)
     end if
     return fullName
+end function
+
+' One line of text width for default font (matches `font:SmallestSystemFont` in Labels). Padding in MainScene.
+function MeasureSmallestSystemFontLineWidth(txt as String) as Integer
+    if txt = invalid or txt = "" then return 0
+    reg = CreateObject("roFontRegistry")
+    if reg = invalid then return 0
+    font = reg.GetDefaultFont(20, false, false)
+    if font = invalid then return 0
+    w = font.GetOneLineWidth(txt, 10000)
+    if w = invalid or w < 1 then return 0
+    ' tiny slack: SG Label can be 1-2px wider than roFont on some builds
+    return w + 2
 end function
 
 function SplitCsv(csv as String) as Object

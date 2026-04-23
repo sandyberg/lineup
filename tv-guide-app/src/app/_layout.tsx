@@ -1,7 +1,8 @@
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { Platform, View, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AppTabs from '@/components/app-tabs';
 import { Onboarding } from '@/components/onboarding';
 import { PreferencesProvider, usePreferences } from '@/hooks/use-preferences';
@@ -18,6 +19,7 @@ const NavyTheme = {
 
 function AppContent() {
   const { prefs, loaded, toggleService, toggleTeam, toggleFavoriteSport, setTvMarket, completeOnboarding } = usePreferences();
+  const insets = useSafeAreaInsets();
 
   if (loaded && !prefs.onboardingComplete) {
     return (
@@ -37,7 +39,17 @@ function AppContent() {
     );
   }
 
-  return <AppTabs />;
+  // Apple TV: avoid clipping the native tab bar / focus treatment at the top of the display.
+  const tabShell =
+    Platform.OS === 'ios' && Platform.isTV
+      ? { flex: 1, backgroundColor: '#0D1117' as const, paddingTop: Math.max(insets.top, 8) }
+      : styles.fullScreen;
+
+  return (
+    <View style={tabShell}>
+      <AppTabs />
+    </View>
+  );
 }
 
 export default function TabLayout() {
