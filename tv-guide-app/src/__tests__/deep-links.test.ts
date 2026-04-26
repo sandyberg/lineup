@@ -82,6 +82,10 @@ describe('Deep link configuration', () => {
       expect(service.deepLinks.tvos).toBe('peacocktv://');
     });
 
+    it('has an iOS universal link for mobile web', () => {
+      expect(service.deepLinks.ios).toBe('https://www.peacocktv.com/watch/live-tv');
+    });
+
     it('has an Android intent', () => {
       expect(service.deepLinks.android).toContain('peacock');
     });

@@ -37,6 +37,7 @@ export const STREAMING_SERVICES: StreamingService[] = [
     playStorePackage: 'com.peacocktv.peacockandroid',
     deepLinks: {
       tvos: 'peacocktv://',
+      ios: 'https://www.peacocktv.com/watch/live-tv',
       android: 'intent://peacocktv.com#Intent;package=com.peacocktv.peacockandroid;scheme=https;end',
       web: 'https://www.peacocktv.com/watch/live-tv',
     },

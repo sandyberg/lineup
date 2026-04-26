@@ -373,6 +373,17 @@ describe('launchStreamingApp on mobile web', () => {
     expect(result).toBe(true);
     expect(mockOpen).toHaveBeenCalledWith('https://www.paramountplus.com', '_blank');
   });
+
+  it('uses the Peacock iOS universal link on iPhone mobile web', async () => {
+    setMobileUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)');
+    const mockOpen = jest.fn();
+    (global as any).window = { open: mockOpen };
+
+    const result = await launchStreamingApp('peacock');
+
+    expect(result).toBe(true);
+    expect(mockOpen).toHaveBeenCalledWith('https://www.peacocktv.com/watch/live-tv', '_blank');
+  });
 });
 
 describe('launchStreamingApp fallback catch branches', () => {
