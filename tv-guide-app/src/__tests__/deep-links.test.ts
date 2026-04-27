@@ -46,8 +46,8 @@ describe('Deep link configuration', () => {
   describe('YouTube TV deep links', () => {
     const service = SERVICE_MAP['youtube-tv'];
 
-    it('has a valid tvos link', () => {
-      expect(service.deepLinks.tvos).toContain('youtube');
+    it('has a tvos app URL scheme', () => {
+      expect(service.deepLinks.tvos).toBe('youtubetv://');
     });
 
     it('has an Android intent link', () => {

@@ -150,6 +150,17 @@ describe('launchStreamingApp', () => {
     expect(result).toBe(true);
   });
 
+  it('uses the YouTube TV app scheme on Apple TV', async () => {
+    (Platform as any).OS = 'ios';
+    (Platform as any).isTV = true;
+
+    const result = await launchStreamingApp('youtube-tv');
+
+    expect(Linking.canOpenURL).toHaveBeenCalledWith('youtubetv://');
+    expect(Linking.openURL).toHaveBeenCalledWith('youtubetv://');
+    expect(result).toBe(true);
+  });
+
   it('falls back to web on android phone when android deep link is missing', async () => {
     (Platform as any).OS = 'android';
     (Platform as any).isTV = false;

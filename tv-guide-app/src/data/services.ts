@@ -9,7 +9,7 @@ export const STREAMING_SERVICES: StreamingService[] = [
     appStoreId: '1193350206',
     playStorePackage: 'com.google.android.apps.youtube.unplugged',
     deepLinks: {
-      tvos: 'https://tv.youtube.com',
+      tvos: 'youtubetv://',
       ios: 'youtubetv://',
       android: 'intent://tv.youtube.com#Intent;package=com.google.android.apps.youtube.unplugged;scheme=https;end',
       web: 'https://tv.youtube.com/live',
@@ -145,7 +145,7 @@ export const STREAMING_SERVICES: StreamingService[] = [
     appStoreId: '1193350206',
     playStorePackage: 'com.google.android.apps.youtube.unplugged',
     deepLinks: {
-      tvos: 'https://tv.youtube.com',
+      tvos: 'youtubetv://',
       ios: 'youtubetv://',
       android: 'intent://tv.youtube.com#Intent;package=com.google.android.apps.youtube.unplugged;scheme=https;end',
       web: 'https://tv.youtube.com/live',

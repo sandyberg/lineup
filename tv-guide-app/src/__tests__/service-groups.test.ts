@@ -93,7 +93,7 @@ describe('league service deep links', () => {
   it('Sunday Ticket deep links point to YouTube TV', () => {
     const ticket = SERVICE_MAP['nfl-sunday-ticket'];
     expect(ticket).toBeDefined();
-    expect(ticket.deepLinks.tvos).toContain('youtube');
+    expect(ticket.deepLinks.tvos).toBe('youtubetv://');
     expect(ticket.deepLinks.android).toContain('youtube.unplugged');
     expect(ticket.deepLinks.web).toContain('tv.youtube.com');
   });
