@@ -66,6 +66,7 @@
       },
       "env": {
         "EXPO_TV": "1",
+        "EXPO_USE_PRECOMPILED_MODULES": "0",
         "LINEUP_DEBUG_TVOS_INFOPLIST": "1"
       }
     },

@@ -1,10 +1,23 @@
 import { useWindowDimensions, useColorScheme as rnUseColorScheme, Platform } from 'react-native';
 import { useResponsive } from '@/hooks/use-responsive';
-import { TV_SIZES } from '@/lib/constants';
+import { DESKTOP_SIZES, TV_SIZES } from '@/lib/constants';
 import { Colors, Spacing } from '@/constants/theme';
 
 describe('useResponsive', () => {
-  it('returns TV sizes for a wide screen', () => {
+  afterEach(() => {
+    Platform.OS = 'ios';
+    Platform.isTV = false;
+  });
+
+  it('returns desktop sizes for a wide non-TV screen', () => {
+    (useWindowDimensions as jest.Mock).mockReturnValue({ width: 1920, height: 1080 });
+    const sizes = useResponsive();
+    expect(sizes).toEqual(DESKTOP_SIZES);
+  });
+
+  it('returns TV sizes for a wide native TV screen', () => {
+    Platform.OS = 'ios';
+    Platform.isTV = true;
     (useWindowDimensions as jest.Mock).mockReturnValue({ width: 1920, height: 1080 });
     const sizes = useResponsive();
     expect(sizes).toEqual(TV_SIZES);

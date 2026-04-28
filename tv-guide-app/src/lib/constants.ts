@@ -1,5 +1,21 @@
 import { SportCategory } from './types';
 
+export interface ResponsiveSizes {
+  cardWidth: number;
+  cardHeight: number;
+  cardGap: number;
+  rowPadding: number;
+  headerHeight: number;
+  filterHeight: number;
+  sectionLabelSize: number;
+  titleSize: number;
+  subtitleSize: number;
+  badgeSize: number;
+  focusBorderWidth: number;
+  focusBorderColor: string;
+  focusScale: number;
+}
+
 export const SPORT_FILTERS: { id: SportCategory; label: string; icon: string }[] = [
   { id: 'all', label: 'All Sports', icon: '🏟' },
   { id: 'nfl', label: 'NFL', icon: '🏈' },
@@ -22,6 +38,22 @@ export const STATUS_COLORS = {
 } as const;
 
 export const TV_SIZES = {
+  cardWidth: 430,
+  cardHeight: 250,
+  cardGap: 28,
+  rowPadding: 72,
+  headerHeight: 96,
+  filterHeight: 78,
+  sectionLabelSize: 38,
+  titleSize: 30,
+  subtitleSize: 22,
+  badgeSize: 18,
+  focusBorderWidth: 5,
+  focusBorderColor: '#FFFFFF',
+  focusScale: 1.04,
+} as const;
+
+export const DESKTOP_SIZES = {
   cardWidth: 340,
   cardHeight: 200,
   cardGap: 20,
@@ -69,10 +101,8 @@ const TABLET_SIZES = {
   focusScale: 1.04,
 } as const;
 
-export type ResponsiveSizes = typeof TV_SIZES;
-
-export function getSizesForWidth(width: number): ResponsiveSizes {
+export function getSizesForWidth(width: number, isTv = false): ResponsiveSizes {
   if (width < 600) return MOBILE_SIZES;
   if (width < 1024) return TABLET_SIZES;
-  return TV_SIZES;
+  return isTv ? TV_SIZES : DESKTOP_SIZES;
 }

@@ -6,9 +6,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
-import { useWindowDimensions } from 'react-native';
 import { MAJOR_SERVICES, LEAGUE_SERVICES } from '@/data/services';
 import { getSizesForWidth } from '@/lib/constants';
 
@@ -90,7 +90,7 @@ function ServiceToggle({
 }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const { width } = useWindowDimensions();
-  const sizes = getSizesForWidth(width);
+  const sizes = getSizesForWidth(width, Platform.isTV && Platform.OS !== 'web');
 
   const handleFocus = useCallback(() => {
     Animated.spring(scaleAnim, {
@@ -116,13 +116,14 @@ function ServiceToggle({
         onPress={onPress}
         style={({ focused }) => [
           styles.toggle,
+          Platform.isTV && styles.toggleTv,
           compact && { width: 160, height: 70, paddingHorizontal: 14 },
           isSelected && { backgroundColor: color, borderColor: color },
           focused && styles.toggleFocused,
         ]}
       >
-        <Text style={[styles.checkmark, compact && { fontSize: 18, width: 24 }]}>{isSelected ? '✓' : ''}</Text>
-        <Text style={[styles.serviceName, compact && { fontSize: 16 }]}>{name}</Text>
+        <Text style={[styles.checkmark, Platform.isTV && styles.checkmarkTv, compact && { fontSize: 18, width: 24 }]}>{isSelected ? '✓' : ''}</Text>
+        <Text style={[styles.serviceName, Platform.isTV && styles.serviceNameTv, compact && { fontSize: 16 }]}>{name}</Text>
       </Pressable>
     </Animated.View>
   );
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 20,
+    gap: Platform.isTV ? 28 : 20,
   },
   sectionLabel: {
     color: '#FFFFFF',
@@ -170,6 +171,13 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 20,
   },
+  toggleTv: {
+    width: 380,
+    height: 132,
+    borderRadius: 24,
+    gap: 18,
+    paddingHorizontal: 28,
+  },
   toggleFocused: {
     borderColor: '#FFFFFF',
   },
@@ -179,10 +187,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     width: 30,
   },
+  checkmarkTv: {
+    fontSize: 32,
+    width: 42,
+  },
   serviceName: {
     color: '#FFFFFF',
     fontSize: 22,
     fontWeight: '600',
     flex: 1,
+  },
+  serviceNameTv: {
+    fontSize: 30,
   },
 });

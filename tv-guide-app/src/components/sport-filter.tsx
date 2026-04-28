@@ -32,9 +32,12 @@ export function SportFilter({ selected, onSelect, sizes }: SportFilterProps) {
         paddingVertical: listPadY,
         gap: sizes.rowPadding < 32 ? 8 : 12,
       },
-      chipLabel: { fontSize: sizes.rowPadding < 32 ? 14 : 18 },
-      chipIcon: { fontSize: sizes.rowPadding < 32 ? 16 : 20 },
-      chip: { paddingHorizontal: sizes.rowPadding < 32 ? 14 : 20, paddingVertical: sizes.rowPadding < 32 ? 8 : 10 },
+      chipLabel: { fontSize: sizes.rowPadding < 32 ? 14 : Platform.isTV ? 24 : 18 },
+      chipIcon: { fontSize: sizes.rowPadding < 32 ? 16 : Platform.isTV ? 26 : 20 },
+      chip: {
+        paddingHorizontal: sizes.rowPadding < 32 ? 14 : Platform.isTV ? 26 : 20,
+        paddingVertical: sizes.rowPadding < 32 ? 8 : Platform.isTV ? 14 : 10,
+      },
     };
   }, [sizes]);
 

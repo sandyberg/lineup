@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { MAJOR_SERVICES, LEAGUE_SERVICES } from '@/data/services';
 import { getSizesForWidth } from '@/lib/constants';
 import { TeamPicker } from './team-picker';
@@ -84,12 +85,16 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
   const btnScale = useRef(new Animated.Value(1)).current;
   const { width, height } = useWindowDimensions();
   const isMobile = width < 600;
+  const isTv = Platform.isTV;
   const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
 
   const content = (
     <>
-      <Text style={[styles.logoText, isMobile && { fontSize: 44 }, isLandscapeMobile && { fontSize: 36 }]}>Lineup</Text>
-      <Text style={[styles.tagline, isMobile && { fontSize: 18, marginBottom: 32 }, isLandscapeMobile && { fontSize: 16, marginBottom: 16 }]}>Live Sports TV Guide</Text>
+      <Text style={[styles.logoText, isTv && styles.logoTextTv, isMobile && { fontSize: 44 }, isLandscapeMobile && { fontSize: 36 }]}>Lineup</Text>
+      <Text style={[styles.tagline, isTv && styles.taglineTv, isMobile && { fontSize: 18 }, isLandscapeMobile && { fontSize: 16 }]}>Live Sports TV Guide</Text>
+      <Text style={[styles.heroSubtext, isTv && styles.heroSubtextTv, isLandscapeMobile && { marginBottom: 18 }]}>
+        Pick your services once. Lineup shows what you can actually watch.
+      </Text>
 
       <View style={[styles.featureList, isLandscapeMobile && { gap: 12, marginBottom: 24 }]}>
         <FeatureRow
@@ -152,11 +157,11 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
   }
 
   return (
-    <View style={styles.screen} testID="onboarding-welcome">
+    <LinearGradient colors={['#0D1B2B', '#07101B']} style={styles.screen} testID="onboarding-welcome">
       <View style={[styles.welcomeContent, isMobile && { paddingHorizontal: 24 }]}>
         {content}
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -187,13 +192,13 @@ function ServicePickerStep({
 
   const { width, height } = useWindowDimensions();
   const isMobile = width < 600;
+  const isTv = Platform.isTV;
   const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
   const scrollStyle = Platform.OS === 'web'
     ? [styles.screen, { height: '100vh' as unknown as number }]
     : styles.screen;
 
-  const topPadding = isLandscapeMobile ? 16 : isMobile ? 60 : Math.max(80, height * 0.12);
-  const isTv = Platform.isTV;
+  const topPadding = isLandscapeMobile ? 16 : isMobile ? 60 : isTv ? Math.max(90, height * 0.1) : Math.max(80, height * 0.12);
   const serviceGridLayout = [
     styles.serviceGrid,
     isMobile && { gap: 10 },
@@ -202,8 +207,8 @@ function ServicePickerStep({
 
   return (
     <ScrollView testID="onboarding-service-picker" style={scrollStyle} contentContainerStyle={[styles.pickerContent, { paddingTop: topPadding }, isMobile && { paddingHorizontal: 20 }]} showsVerticalScrollIndicator={false}>
-      <Text style={[styles.stepTitle, isMobile && { fontSize: 26 }]}>Pick your streaming services</Text>
-      <Text style={styles.stepSubtitle}>
+      <Text style={[styles.stepTitle, isTv && styles.stepTitleTv, isMobile && { fontSize: 26 }]}>Pick your streaming services</Text>
+      <Text style={[styles.stepSubtitle, isTv && styles.stepSubtitleTv]}>
         Lineup will only show games available on your services. You can change this anytime in Settings.
       </Text>
 
@@ -288,12 +293,13 @@ function MarketPickerStep({
   const btnScale = useRef(new Animated.Value(1)).current;
   const { width, height } = useWindowDimensions();
   const isMobile = width < 600;
+  const isTv = Platform.isTV;
   const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
   const scrollStyle = Platform.OS === 'web'
     ? [styles.screen, { height: '100vh' as unknown as number }]
     : styles.screen;
 
-  const topPadding = isLandscapeMobile ? 16 : isMobile ? 60 : Math.max(80, height * 0.12);
+  const topPadding = isLandscapeMobile ? 16 : isMobile ? 60 : isTv ? Math.max(90, height * 0.1) : Math.max(80, height * 0.12);
 
   return (
     <ScrollView
@@ -306,12 +312,12 @@ function MarketPickerStep({
       ]}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={[styles.stepTitle, isMobile && { fontSize: 26 }]}>Select your TV markets</Text>
-      <Text style={styles.stepSubtitle}>
+      <Text style={[styles.stepTitle, isTv && styles.stepTitleTv, isMobile && { fontSize: 26 }]}>Select your TV markets</Text>
+      <Text style={[styles.stepSubtitle, isTv && styles.stepSubtitleTv]}>
         This helps Lineup show local channels like your regional sports networks. You can skip this or change it later in Settings.
       </Text>
 
-      <View style={{ width: '100%', maxWidth: 700 }}>
+      <View style={{ width: '100%', maxWidth: isTv ? 980 : 700 }}>
         <MarketPicker
           selectedMarkets={selectedMarkets}
           onToggle={onToggle}
@@ -381,12 +387,13 @@ function TeamPickerStep({
   const btnScale = useRef(new Animated.Value(1)).current;
   const { width, height } = useWindowDimensions();
   const isMobile = width < 600;
+  const isTv = Platform.isTV;
   const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
   const scrollStyle = Platform.OS === 'web'
     ? [styles.screen, { height: '100vh' as unknown as number }]
     : styles.screen;
 
-  const topPadding = isLandscapeMobile ? 16 : isMobile ? 60 : Math.max(80, height * 0.12);
+  const topPadding = isLandscapeMobile ? 16 : isMobile ? 60 : isTv ? Math.max(90, height * 0.1) : Math.max(80, height * 0.12);
 
   return (
     <ScrollView
@@ -399,12 +406,12 @@ function TeamPickerStep({
       ]}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={[styles.stepTitle, isMobile && { fontSize: 26 }]}>Pick your favorites</Text>
-      <Text style={styles.stepSubtitle}>
+      <Text style={[styles.stepTitle, isTv && styles.stepTitleTv, isMobile && { fontSize: 26 }]}>Pick your favorites</Text>
+      <Text style={[styles.stepSubtitle, isTv && styles.stepSubtitleTv]}>
         Add sports, teams, or both—only what you turn on is used. You can skip and change this anytime in Settings.
       </Text>
 
-      <View style={{ width: '100%', maxWidth: 700 }}>
+      <View style={{ width: '100%', maxWidth: isTv ? 980 : 700 }}>
         <TeamPicker
           selectedTeams={selectedTeams}
           onToggle={onToggle}
@@ -486,7 +493,7 @@ function ServiceChip({
 }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const { width } = useWindowDimensions();
-  const sizes = getSizesForWidth(width);
+  const sizes = getSizesForWidth(width, Platform.isTV && Platform.OS !== 'web');
   // tvOS: scaling the chip makes it grow past the row and overlap neighbors; use the white focus border only.
   const focusScale = Platform.isTV ? 1 : sizes.focusScale;
 
@@ -513,12 +520,13 @@ function ServiceChip({
           styles.chip,
           compact && { width: 150, height: 56, paddingHorizontal: 12, gap: 8 },
           fullWidth && { width: '100%' as const, minWidth: undefined, alignSelf: 'stretch' },
+          fullWidth && styles.chipTv,
           isSelected && { backgroundColor: color, borderColor: color },
           focused && styles.chipFocused,
         ]}
       >
-        <Text style={[styles.chipCheck, compact && { fontSize: 16, width: 20 }]}>{isSelected ? '✓' : ''}</Text>
-        <Text style={[styles.chipName, compact && { fontSize: 15 }]}>{name}</Text>
+        <Text style={[styles.chipCheck, fullWidth && styles.chipCheckTv, compact && { fontSize: 16, width: 20 }]}>{isSelected ? '✓' : ''}</Text>
+        <Text style={[styles.chipName, fullWidth && styles.chipNameTv, compact && { fontSize: 15 }]}>{name}</Text>
       </Pressable>
     </Animated.View>
   );
@@ -527,13 +535,13 @@ function ServiceChip({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#0D1117',
+    backgroundColor: '#0A1320',
   },
   welcomeContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 60,
+    paddingHorizontal: Platform.isTV ? 90 : 60,
     paddingBottom: 40,
   },
   logoText: {
@@ -547,30 +555,50 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '500',
     marginTop: 4,
+    marginBottom: 14,
+  },
+  heroSubtext: {
+    color: '#A7B4C5',
+    fontSize: 18,
+    lineHeight: 26,
+    textAlign: 'center',
+    maxWidth: 560,
     marginBottom: 48,
+  },
+  heroSubtextTv: {
+    fontSize: 27,
+    lineHeight: 38,
+    maxWidth: 780,
+    marginBottom: 58,
   },
   featureList: {
     width: '100%',
-    maxWidth: 600,
-    gap: 24,
-    marginBottom: 48,
+    maxWidth: Platform.isTV ? 820 : 600,
+    gap: Platform.isTV ? 32 : 24,
+    marginBottom: Platform.isTV ? 56 : 48,
+  },
+  logoTextTv: {
+    fontSize: 96,
+  },
+  taglineTv: {
+    fontSize: 34,
   },
   featureRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 20,
+    gap: Platform.isTV ? 28 : 20,
   },
   featureNumber: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: Platform.isTV ? 56 : 40,
+    height: Platform.isTV ? 56 : 40,
+    borderRadius: Platform.isTV ? 28 : 20,
     backgroundColor: '#1A3A5C',
     justifyContent: 'center',
     alignItems: 'center',
   },
   featureNumberText: {
     color: '#5CAAFF',
-    fontSize: 18,
+    fontSize: Platform.isTV ? 25 : 18,
     fontWeight: '700',
   },
   featureTextContainer: {
@@ -578,17 +606,17 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     color: '#FFFFFF',
-    fontSize: 22,
+    fontSize: Platform.isTV ? 31 : 22,
     fontWeight: '700',
     marginBottom: 4,
   },
   featureDesc: {
     color: '#8B95A5',
-    fontSize: 17,
-    lineHeight: 24,
+    fontSize: Platform.isTV ? 24 : 17,
+    lineHeight: Platform.isTV ? 34 : 24,
   },
   pickerContent: {
-    paddingHorizontal: 60,
+    paddingHorizontal: Platform.isTV ? 90 : 60,
     paddingTop: 100,
     paddingBottom: 40,
     alignItems: 'center',
@@ -600,6 +628,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     textAlign: 'center',
   },
+  stepTitleTv: {
+    fontSize: 52,
+    marginBottom: 18,
+  },
   stepSubtitle: {
     color: '#8B95A5',
     fontSize: 18,
@@ -607,6 +639,12 @@ const styles = StyleSheet.create({
     marginBottom: 36,
     maxWidth: 550,
     lineHeight: 26,
+  },
+  stepSubtitleTv: {
+    fontSize: 27,
+    lineHeight: 38,
+    maxWidth: 860,
+    marginBottom: 46,
   },
   serviceGrid: {
     flexDirection: 'row',
@@ -621,7 +659,7 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     alignSelf: 'center',
     width: '100%',
-    maxWidth: 640,
+    maxWidth: 860,
   },
   chip: {
     width: 220,
@@ -635,6 +673,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 12,
   },
+  chipTv: {
+    minHeight: 112,
+    borderRadius: 24,
+    paddingHorizontal: 30,
+    gap: 18,
+  },
   chipFocused: {
     borderColor: '#FFFFFF',
   },
@@ -644,36 +688,46 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     width: 26,
   },
+  chipCheckTv: {
+    fontSize: 30,
+    width: 40,
+  },
   chipName: {
     color: '#FFFFFF',
     fontSize: 20,
     fontWeight: '600',
     flex: 1,
   },
+  chipNameTv: {
+    fontSize: 30,
+  },
   sectionLabel: {
     color: '#AEAEB2',
-    fontSize: 18,
+    fontSize: Platform.isTV ? 24 : 18,
     fontWeight: '600',
     marginTop: 28,
     marginBottom: 4,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
+  sectionLabelTv: {
+    fontSize: 24,
+  },
   sectionHint: {
     color: '#4A5568',
-    fontSize: 15,
-    marginBottom: 16,
+    fontSize: Platform.isTV ? 22 : 15,
+    marginBottom: Platform.isTV ? 22 : 16,
   },
   selectedCount: {
     color: '#8B95A5',
-    fontSize: 16,
+    fontSize: Platform.isTV ? 22 : 16,
     marginBottom: 24,
   },
   ctaButton: {
     backgroundColor: '#2C7BE5',
-    paddingHorizontal: 48,
-    paddingVertical: 18,
-    borderRadius: 14,
+    paddingHorizontal: Platform.isTV ? 70 : 48,
+    paddingVertical: Platform.isTV ? 26 : 18,
+    borderRadius: Platform.isTV ? 22 : 14,
     borderWidth: 3,
     borderColor: '#2C7BE5',
   },
@@ -687,19 +741,19 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     color: '#FFFFFF',
-    fontSize: 22,
+    fontSize: Platform.isTV ? 32 : 22,
     fontWeight: '700',
     textAlign: 'center',
   },
   teamPickerButtons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20,
+    gap: Platform.isTV ? 34 : 20,
     marginTop: 8,
   },
   skipButton: {
-    paddingHorizontal: 32,
-    paddingVertical: 18,
+    paddingHorizontal: Platform.isTV ? 44 : 32,
+    paddingVertical: Platform.isTV ? 24 : 18,
   },
   skipButtonFocused: {
     borderWidth: 2,
@@ -708,7 +762,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     color: '#8B95A5',
-    fontSize: 18,
+    fontSize: Platform.isTV ? 26 : 18,
     fontWeight: '600',
   },
 });

@@ -115,19 +115,21 @@ export function TeamPicker({
     );
   }
 
-  const chipSize = isCompact
+  const chipSize = isTv
+    ? { paddingHorizontal: 22, paddingVertical: 15 }
+    : isCompact
     ? { paddingHorizontal: 10, paddingVertical: 7 }
     : { paddingHorizontal: 14, paddingVertical: 9 };
-  const inputH = isCompact ? 38 : 44;
+  const inputH = isTv ? 68 : isCompact ? 38 : 44;
 
   return (
     <View testID="team-picker" style={styles.wrapper}>
       {onToggleSport && (
         <View style={styles.sportsSection}>
-          <Text style={[styles.sectionLabel, isCompact && { fontSize: 12 }]}>
+          <Text style={[styles.sectionLabel, isTv && styles.sectionLabelTv, isCompact && { fontSize: 12 }]}>
             Sports
           </Text>
-          <Text style={[styles.sportsHint, isCompact && { fontSize: 12 }]}>
+          <Text style={[styles.sportsHint, isTv && styles.sportsHintTv, isCompact && { fontSize: 12 }]}>
             Follow an entire sport (e.g. all Golf or MMA). Or pick teams below.
           </Text>
           <View style={styles.chipRow}>
@@ -146,8 +148,8 @@ export function TeamPicker({
                     showFocus && focused && styles.chipFocused,
                   ]}
                 >
-                  <Text style={{ fontSize: 14 }}>{sport.icon}</Text>
-                  <Text style={[styles.chipText, isCompact && { fontSize: 13 }, isSelected && { fontWeight: '600' }]}>
+                  <Text style={{ fontSize: isTv ? 24 : 14 }}>{sport.icon}</Text>
+                  <Text style={[styles.chipText, isTv && styles.chipTextTv, isCompact && { fontSize: 13 }, isSelected && { fontWeight: '600' }]}>
                     {sport.label}
                   </Text>
                 </Pressable>
@@ -157,7 +159,7 @@ export function TeamPicker({
         </View>
       )}
 
-      <Text style={[styles.sectionLabel, isCompact && { fontSize: 12 }]}>
+      <Text style={[styles.sectionLabel, isTv && styles.sectionLabelTv, isCompact && { fontSize: 12 }]}>
         Teams
       </Text>
 
@@ -186,7 +188,7 @@ export function TeamPicker({
                 numberOfLines={1}
                 style={[
                   styles.searchPlaceholderText,
-                  { color: tvTextColor, fontSize: isCompact ? 14 : 15 },
+                  { color: tvTextColor, fontSize: isTv ? 24 : isCompact ? 14 : 15 },
                 ]}
               >
                 Search teams...
@@ -204,6 +206,7 @@ export function TeamPicker({
                 minHeight: inputH,
                 color: tvInputColor,
               },
+              isTv && { fontSize: 24 },
               isCompact && { fontSize: 14, height: 38, minHeight: 38 },
             ]}
             placeholder=""
@@ -246,7 +249,7 @@ export function TeamPicker({
                 showFocus && focused && styles.leagueHeaderFocused,
               ]}
             >
-              <Text style={[styles.leagueLabel, isCompact && { fontSize: 16 }]}>
+              <Text style={[styles.leagueLabel, isTv && styles.leagueLabelTv, isCompact && { fontSize: 16 }]}>
                 {league}
               </Text>
               <View style={styles.leagueHeaderRight}>
@@ -273,6 +276,7 @@ export function TeamPicker({
                       <Text
                         style={[
                           styles.chipText,
+                          isTv && styles.chipTextTv,
                           isCompact && { fontSize: 13 },
                           isSelected && { fontWeight: '600' },
                         ]}
@@ -290,7 +294,7 @@ export function TeamPicker({
       })}
 
       {isSearching && filteredTeams.length === 0 && (
-        <Text style={styles.emptyText}>No teams match "{search}"</Text>
+        <Text style={styles.emptyText}>No teams match: {search}</Text>
       )}
     </View>
   );
@@ -301,15 +305,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   loadingContainer: {
-    padding: 40,
+    padding: Platform.isTV ? 60 : 40,
     alignItems: 'center',
   },
   loadingText: {
     color: '#8B95A5',
-    fontSize: 16,
+    fontSize: Platform.isTV ? 24 : 16,
   },
   sportsSection: {
-    marginBottom: 20,
+    marginBottom: Platform.isTV ? 30 : 20,
   },
   sectionLabel: {
     color: '#6B7280',
@@ -319,16 +323,25 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     marginBottom: 8,
   },
+  sectionLabelTv: {
+    fontSize: 20,
+    marginBottom: 12,
+  },
   sportsHint: {
     color: '#6B7280',
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 10,
   },
+  sportsHintTv: {
+    fontSize: 22,
+    lineHeight: 30,
+    marginBottom: 18,
+  },
   searchInput: {
     backgroundColor: '#1A1F2E',
     color: '#FFFFFF',
-    borderRadius: 10,
+    borderRadius: Platform.isTV ? 16 : 10,
     height: 44,
     paddingHorizontal: 14,
     fontSize: 15,
@@ -341,15 +354,15 @@ const styles = StyleSheet.create({
   searchFieldTv: {
     width: '100%',
     zIndex: 1,
-    paddingHorizontal: 14,
+    paddingHorizontal: Platform.isTV ? 22 : 14,
     borderWidth: 0,
     backgroundColor: 'transparent',
-    fontSize: 15,
+    fontSize: Platform.isTV ? 24 : 15,
   },
   searchPlaceholderBack: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 0,
-    paddingHorizontal: 14,
+    paddingHorizontal: Platform.isTV ? 22 : 14,
     justifyContent: 'center',
   },
   searchPlaceholderText: {
@@ -370,7 +383,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   leagueSection: {
-    marginBottom: 4,
+    marginBottom: Platform.isTV ? 8 : 4,
     borderBottomWidth: 1,
     borderBottomColor: '#1A1F2E',
   },
@@ -378,9 +391,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    borderRadius: 8,
+    paddingVertical: Platform.isTV ? 16 : 10,
+    paddingHorizontal: Platform.isTV ? 10 : 6,
+    borderRadius: Platform.isTV ? 14 : 8,
     borderWidth: 2,
     borderColor: 'transparent',
   },
@@ -392,6 +405,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
+  leagueLabelTv: {
+    fontSize: 27,
+  },
   leagueHeaderRight: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -399,19 +415,19 @@ const styles = StyleSheet.create({
   },
   chevron: {
     color: '#6B7280',
-    fontSize: 16,
+    fontSize: Platform.isTV ? 24 : 16,
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    paddingTop: 10,
-    paddingBottom: 12,
+    gap: Platform.isTV ? 14 : 8,
+    paddingTop: Platform.isTV ? 14 : 10,
+    paddingBottom: Platform.isTV ? 18 : 12,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: Platform.isTV ? 16 : 10,
     backgroundColor: '#1A1F2E',
     borderWidth: 1.5,
     borderColor: '#2D3548',
@@ -435,9 +451,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flexShrink: 1,
   },
+  chipTextTv: {
+    fontSize: 23,
+  },
   emptyText: {
     color: '#8B95A5',
-    fontSize: 15,
+    fontSize: Platform.isTV ? 24 : 15,
     textAlign: 'center',
     marginTop: 24,
   },

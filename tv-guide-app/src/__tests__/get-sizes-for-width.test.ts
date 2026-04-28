@@ -1,4 +1,4 @@
-import { getSizesForWidth, TV_SIZES } from '@/lib/constants';
+import { DESKTOP_SIZES, getSizesForWidth, TV_SIZES } from '@/lib/constants';
 
 describe('getSizesForWidth', () => {
   it('returns mobile sizes for width < 600', () => {
@@ -25,16 +25,23 @@ describe('getSizesForWidth', () => {
     expect(sizes.cardWidth).toBe(300);
   });
 
-  it('returns TV sizes for width >= 1024', () => {
+  it('returns desktop sizes for width >= 1024 by default', () => {
     const sizes = getSizesForWidth(1024);
-    expect(sizes).toEqual(TV_SIZES);
+    expect(sizes).toEqual(DESKTOP_SIZES);
   });
 
-  it('returns TV sizes for typical TV width (1920)', () => {
+  it('returns desktop sizes for typical desktop width (1920) by default', () => {
     const sizes = getSizesForWidth(1920);
     expect(sizes.cardWidth).toBe(340);
     expect(sizes.rowPadding).toBe(60);
     expect(sizes.sectionLabelSize).toBe(28);
+  });
+
+  it('returns TV sizes for typical TV width (1920) when TV layout is requested', () => {
+    const sizes = getSizesForWidth(1920, true);
+    expect(sizes.cardWidth).toBe(430);
+    expect(sizes.rowPadding).toBe(72);
+    expect(sizes.sectionLabelSize).toBe(38);
   });
 
   it('returns mobile sizes for very small width (320)', () => {
@@ -43,8 +50,13 @@ describe('getSizesForWidth', () => {
     expect(sizes.cardGap).toBe(12);
   });
 
-  it('returns TV sizes for very large width (3840)', () => {
+  it('returns desktop sizes for very large width by default', () => {
     const sizes = getSizesForWidth(3840);
+    expect(sizes).toEqual(DESKTOP_SIZES);
+  });
+
+  it('returns TV sizes for very large width when TV layout is requested', () => {
+    const sizes = getSizesForWidth(3840, true);
     expect(sizes).toEqual(TV_SIZES);
   });
 });

@@ -33,14 +33,16 @@ export function MarketPicker({ selectedMarkets, onToggle, onClear, compact }: Ma
     return markets.filter((m) => m.label.toLowerCase().includes(q));
   }, [markets, search]);
 
-  const chipSize = compact
+  const isTv = Platform.isTV;
+  const chipSize = isTv
+    ? { paddingHorizontal: 26, paddingVertical: 16 }
+    : compact
     ? { paddingHorizontal: 14, paddingVertical: 8 }
     : { paddingHorizontal: 18, paddingVertical: 10 };
-  const fontSize = compact ? 14 : 16;
+  const fontSize = isTv ? 24 : compact ? 14 : 16;
   // tvOS/ATV: selection styling alone is invisible when moving focus; always show a clear focus ring.
-  const isTv = Platform.isTV;
   const showFocus = isTv;
-  const inputH = compact ? 38 : 44;
+  const inputH = isTv ? 68 : compact ? 38 : 44;
   const tvFieldActive = searchShellTvFocused || searchFocused;
   /**
    * Unfocused: dim on elevated dark (`#1A1F2E`), like tab labels on the bar.
@@ -79,7 +81,7 @@ export function MarketPicker({ selectedMarkets, onToggle, onClear, compact }: Ma
                 numberOfLines={1}
                 style={[
                   styles.searchPlaceholderText,
-                  { color: tvTextColor, fontSize: compact ? 14 : 16 },
+                  { color: tvTextColor, fontSize: isTv ? 24 : compact ? 14 : 16 },
                 ]}
               >
                 Search markets...
@@ -97,6 +99,7 @@ export function MarketPicker({ selectedMarkets, onToggle, onClear, compact }: Ma
                 minHeight: inputH,
                 color: tvInputColor,
               },
+              isTv && { fontSize: 24 },
               compact && { fontSize: 14, height: 38, minHeight: 38 },
             ]}
             placeholder=""
@@ -173,8 +176,8 @@ const styles = StyleSheet.create({
   searchInput: {
     backgroundColor: '#1A1F2E',
     color: '#FFFFFF',
-    borderRadius: 10,
-    fontSize: 16,
+    borderRadius: Platform.isTV ? 16 : 10,
+    fontSize: Platform.isTV ? 24 : 16,
     borderWidth: 2,
     borderColor: '#2D3548',
     overflow: 'hidden',
@@ -183,15 +186,15 @@ const styles = StyleSheet.create({
   searchFieldTv: {
     width: '100%',
     zIndex: 1,
-    paddingHorizontal: 14,
+    paddingHorizontal: Platform.isTV ? 22 : 14,
     borderWidth: 0,
     backgroundColor: 'transparent',
-    fontSize: 16,
+    fontSize: Platform.isTV ? 24 : 16,
   },
   searchPlaceholderBack: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 0,
-    paddingHorizontal: 14,
+    paddingHorizontal: Platform.isTV ? 22 : 14,
     justifyContent: 'center',
   },
   searchPlaceholderText: {
@@ -214,12 +217,12 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 8,
+    gap: Platform.isTV ? 14 : 8,
+    marginTop: Platform.isTV ? 14 : 8,
   },
   chip: {
     backgroundColor: '#1A1F2E',
-    borderRadius: 10,
+    borderRadius: Platform.isTV ? 16 : 10,
     borderWidth: 2,
     borderColor: '#2D3548',
     marginBottom: 4,

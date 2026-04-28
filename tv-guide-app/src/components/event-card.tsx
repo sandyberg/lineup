@@ -97,7 +97,7 @@ export function EventCard({ event, userServices, sizes, onPress, onShowServicePi
 
   const dynamicStyles = useMemo(() => ({
     wrapper: { width: sizes.cardWidth, marginRight: sizes.cardGap },
-    card: { height: sizes.cardHeight, borderWidth: sizes.focusBorderWidth, padding: sizes.cardWidth < 300 ? 14 : 20 },
+    card: { height: sizes.cardHeight, borderWidth: sizes.focusBorderWidth, padding: sizes.cardWidth < 300 ? 14 : Platform.isTV ? 26 : 20 },
     cardFocused: { borderColor: sizes.focusBorderColor },
     statusText: { fontSize: sizes.badgeSize },
     channelText: { fontSize: sizes.badgeSize },
@@ -105,7 +105,7 @@ export function EventCard({ event, userServices, sizes, onPress, onShowServicePi
     score: { fontSize: sizes.titleSize },
     eventTitle: { fontSize: sizes.titleSize },
     leagueText: { fontSize: sizes.subtitleSize },
-    serviceBadgeText: { fontSize: sizes.cardWidth < 300 ? 9 : 11 },
+    serviceBadgeText: { fontSize: sizes.cardWidth < 300 ? 9 : Platform.isTV ? 15 : 11 },
   }), [sizes]);
 
   return (
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   middleRow: {
     flex: 1,
     justifyContent: 'center',
-    gap: 4,
+    gap: Platform.isTV ? 8 : 4,
   },
   teamRow: {
     flexDirection: 'row',
@@ -248,8 +248,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   serviceBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: Platform.isTV ? 10 : 8,
+    paddingVertical: Platform.isTV ? 5 : 3,
     borderRadius: 4,
   },
   serviceBadgeText: {
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    paddingTop: 8,
+    paddingTop: Platform.isTV ? 12 : 8,
   },
   watchHintDot: {
     width: 8,
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   },
   watchHintText: {
     color: '#8B95A5',
-    fontSize: 13,
+    fontSize: Platform.isTV ? 18 : 13,
     fontWeight: '500',
   },
 });

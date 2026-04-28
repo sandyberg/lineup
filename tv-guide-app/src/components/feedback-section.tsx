@@ -11,7 +11,7 @@ export function FeedbackSection({ compact }: FeedbackSectionProps) {
 
   return (
     <View testID="feedback-section">
-      <Text style={[styles.description, compact && styles.descriptionCompact]}>
+      <Text style={[styles.description, isTV && styles.descriptionTv, compact && styles.descriptionCompact]}>
         {isTV
           ? 'Have a question or suggestion? Email us from your phone or computer:'
           : 'Have a question or suggestion? We\u2019d love to hear from you.'}
@@ -20,7 +20,7 @@ export function FeedbackSection({ compact }: FeedbackSectionProps) {
       <Text
         testID="feedback-email"
         selectable
-        style={[styles.email, compact && styles.emailCompact]}
+        style={[styles.email, isTV && styles.emailTv, compact && styles.emailCompact]}
       >
         {FEEDBACK_EMAIL}
       </Text>
@@ -56,11 +56,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     lineHeight: 22,
   },
+  descriptionTv: {
+    fontSize: 27,
+    lineHeight: 38,
+    marginBottom: 22,
+  },
   email: {
     color: '#5CAAFF',
     fontSize: 22,
     fontWeight: '600',
     marginBottom: 20,
+  },
+  emailTv: {
+    fontSize: 30,
   },
   emailCompact: {
     fontSize: 17,

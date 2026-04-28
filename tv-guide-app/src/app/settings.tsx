@@ -16,13 +16,16 @@ export default function SettingsScreen() {
   const isLandscapeMobile = Platform.OS === 'web' && width > height && height < 500;
   const isWebMobile = Platform.OS === 'web' && width < 768;
   const isNativeMobile = (Platform.OS === 'ios' || Platform.OS === 'android') && !Platform.isTV;
+  const isTv = Platform.isTV;
   const topPadding = isLandscapeMobile
     ? 8
     : isNativeMobile
       ? insets.top + 8
       : isWebMobile
         ? 80
-        : 80;
+        : isTv
+          ? 90
+          : 80;
 
   return (
     <View testID="settings-screen" style={styles.container}>
@@ -35,8 +38,8 @@ export default function SettingsScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.heading, isMobile && { fontSize: 26 }]}>My Streaming Services</Text>
-        <Text style={styles.subheading}>
+        <Text style={[styles.heading, isTv && styles.headingTv, isMobile && { fontSize: 26 }]}>My Streaming Services</Text>
+        <Text style={[styles.subheading, isTv && styles.subheadingTv]}>
           Select the services you subscribe to. Only events available on your services will be shown.
         </Text>
         <ServiceSelectorContent
@@ -47,8 +50,8 @@ export default function SettingsScreen() {
 
         <View style={styles.divider} />
 
-        <Text style={[styles.heading, isMobile && { fontSize: 26 }]}>TV Markets</Text>
-        <Text style={styles.subheading}>
+        <Text style={[styles.heading, isTv && styles.headingTv, isMobile && { fontSize: 26 }]}>TV Markets</Text>
+        <Text style={[styles.subheading, isTv && styles.subheadingTv]}>
           Select your local TV markets to see regional sports networks and local channels.
         </Text>
 
@@ -61,8 +64,8 @@ export default function SettingsScreen() {
 
         <View style={styles.divider} />
 
-        <Text style={[styles.heading, isMobile && { fontSize: 26 }]}>My Favorites</Text>
-        <Text style={styles.subheading}>
+        <Text style={[styles.heading, isTv && styles.headingTv, isMobile && { fontSize: 26 }]}>My Favorites</Text>
+        <Text style={[styles.subheading, isTv && styles.subheadingTv]}>
           Pick whole sports, specific teams, or both. Nothing is selected until you turn it on.
         </Text>
 
@@ -84,7 +87,7 @@ export default function SettingsScreen() {
           </>
         )}
 
-        <Text style={[styles.heading, isMobile && { fontSize: 26 }]}>Questions or Suggestions?</Text>
+        <Text style={[styles.heading, isTv && styles.headingTv, isMobile && { fontSize: 26 }]}>Questions or Suggestions?</Text>
         <FeedbackSection compact={isMobile} />
       </ScrollView>
     </View>
@@ -97,15 +100,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#0D1117',
   },
   scrollContent: {
-    padding: 60,
+    padding: Platform.isTV ? 90 : 60,
     paddingTop: 80,
     paddingBottom: 40,
   },
   divider: {
     height: 1,
     backgroundColor: '#2D3548',
-    marginTop: 32,
-    marginBottom: 32,
+    marginTop: Platform.isTV ? 48 : 32,
+    marginBottom: Platform.isTV ? 48 : 32,
   },
   heading: {
     color: '#FFFFFF',
@@ -113,10 +116,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 12,
   },
+  headingTv: {
+    fontSize: 52,
+    marginBottom: 18,
+  },
   subheading: {
     color: '#8B95A5',
     fontSize: 20,
     marginBottom: 24,
     lineHeight: 28,
+  },
+  subheadingTv: {
+    fontSize: 27,
+    lineHeight: 38,
+    marginBottom: 34,
+    maxWidth: 980,
   },
 });

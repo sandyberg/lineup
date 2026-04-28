@@ -11,6 +11,8 @@ import {
 import { StreamingService, SportEvent } from '@/lib/types';
 import { launchStreamingApp } from '@/lib/deep-links';
 
+const IS_NATIVE_TV = Platform.isTV && Platform.OS !== 'web';
+
 interface ServicePickerModalProps {
   visible: boolean;
   services: StreamingService[];
@@ -22,15 +24,17 @@ function ServiceOption({
   service,
   onPress,
   hasTVPreferredFocus,
+  large,
 }: {
   service: StreamingService;
   onPress: () => void;
   hasTVPreferredFocus?: boolean;
+  large: boolean;
 }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handleFocus = useCallback(() => {
-    if (Platform.isTV) {
+    if (IS_NATIVE_TV) {
       return;
     }
     Animated.spring(scaleAnim, {
@@ -41,7 +45,7 @@ function ServiceOption({
   }, [scaleAnim]);
 
   const handleBlur = useCallback(() => {
-    if (Platform.isTV) {
+    if (IS_NATIVE_TV) {
       return;
     }
     Animated.spring(scaleAnim, {
@@ -60,17 +64,18 @@ function ServiceOption({
       onPress={onPress}
       style={({ focused }) => [
         styles.serviceOption,
+        large && styles.serviceOptionLarge,
         focused && styles.serviceOptionFocused,
       ]}
     >
-      <View style={[styles.serviceDot, { backgroundColor: service.color }]} />
-      <Text style={styles.serviceName}>{service.name}</Text>
-      <Text style={styles.launchArrow}>→</Text>
+      <View style={[styles.serviceDot, large && styles.serviceDotLarge, { backgroundColor: service.color }]} />
+      <Text style={[styles.serviceName, large && styles.serviceNameLarge]}>{service.name}</Text>
+      <Text style={[styles.launchArrow, large && styles.launchArrowLarge]}>→</Text>
     </Pressable>
   );
 
   // Animated.View can confuse the Apple TV focus engine; use plain view on TV.
-  if (Platform.isTV) {
+  if (IS_NATIVE_TV) {
     return <View>{body}</View>;
   }
   return <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>{body}</Animated.View>;
@@ -82,6 +87,9 @@ export function ServicePickerModal({
   event,
   onClose,
 }: ServicePickerModalProps) {
+  const useLargeModal = IS_NATIVE_TV;
+
+
   const handleLaunch = useCallback(
     (serviceId: string) => {
       onClose();
@@ -108,22 +116,23 @@ export function ServicePickerModal({
           accessibilityLabel="Close provider list"
           style={StyleSheet.absoluteFill}
           onPress={onClose}
-          {...(Platform.isTV ? { focusable: false } : {})}
+          {...(IS_NATIVE_TV ? { focusable: false } : {})}
         />
         <View
           testID="service-picker-modal"
-          style={styles.sheet}
+          style={[styles.sheet, useLargeModal && styles.sheetLarge]}
           pointerEvents="box-none"
         >
-          <Text style={styles.title}>Available on</Text>
-          <Text style={styles.subtitle} numberOfLines={1}>{title}</Text>
+          <Text style={[styles.title, useLargeModal && styles.titleLarge]}>Available on</Text>
+          <Text style={[styles.subtitle, useLargeModal && styles.subtitleLarge]} numberOfLines={1}>{title}</Text>
 
-          <View style={styles.serviceList}>
+          <View style={[styles.serviceList, useLargeModal && styles.serviceListLarge]}>
             {services.map((svc, index) => (
               <ServiceOption
                 key={svc.id}
                 service={svc}
-                hasTVPreferredFocus={Platform.isTV && index === 0}
+                hasTVPreferredFocus={IS_NATIVE_TV && index === 0}
+                large={useLargeModal}
                 onPress={() => handleLaunch(svc.id)}
               />
             ))}
@@ -134,10 +143,11 @@ export function ServicePickerModal({
             onPress={onClose}
             style={({ focused }) => [
               styles.cancelBtn,
+              useLargeModal && styles.cancelBtnLarge,
               focused && styles.cancelBtnFocused,
             ]}
           >
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={[styles.cancelText, useLargeModal && styles.cancelTextLarge]}>Cancel</Text>
           </Pressable>
         </View>
       </View>
@@ -165,11 +175,19 @@ const styles = StyleSheet.create({
     width: 400,
     maxWidth: '90%',
   },
+  sheetLarge: {
+    borderRadius: 36,
+    padding: 56,
+    width: 760,
+  },
   title: {
     color: '#FFFFFF',
     fontSize: 22,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  titleLarge: {
+    fontSize: 42,
   },
   subtitle: {
     color: '#8B95A5',
@@ -179,8 +197,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 20,
   },
+  subtitleLarge: {
+    fontSize: 30,
+    marginBottom: 40,
+  },
   serviceList: {
     gap: 10,
+  },
+  serviceListLarge: {
+    gap: 22,
   },
   serviceOption: {
     flexDirection: 'row',
@@ -192,6 +217,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
+  serviceOptionLarge: {
+    borderRadius: 24,
+    paddingVertical: 30,
+    paddingHorizontal: 34,
+  },
   serviceOptionFocused: {
     borderColor: '#FFFFFF',
     backgroundColor: '#2D3A50',
@@ -202,16 +232,28 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginRight: 14,
   },
+  serviceDotLarge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    marginRight: 26,
+  },
   serviceName: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
     flex: 1,
   },
+  serviceNameLarge: {
+    fontSize: 34,
+  },
   launchArrow: {
     color: '#8B95A5',
     fontSize: 18,
     fontWeight: '600',
+  },
+  launchArrowLarge: {
+    fontSize: 34,
   },
   cancelBtn: {
     marginTop: 16,
@@ -222,6 +264,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
+  cancelBtnLarge: {
+    marginTop: 32,
+    paddingVertical: 24,
+    borderRadius: 24,
+  },
   cancelBtnFocused: {
     borderColor: '#FFFFFF',
   },
@@ -229,5 +276,8 @@ const styles = StyleSheet.create({
     color: '#8B95A5',
     fontSize: 16,
     fontWeight: '600',
+  },
+  cancelTextLarge: {
+    fontSize: 30,
   },
 });

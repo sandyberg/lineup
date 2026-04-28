@@ -109,12 +109,12 @@ export default function GuideScreen() {
             : 80,
       paddingBottom: isMobile ? 8 : 16,
     },
-    headerTitle: { fontSize: isMobile ? 28 : 42 },
-    headerSubtitle: { fontSize: isMobile ? 16 : 22 },
-    emptyText: { fontSize: isMobile ? 22 : 28 },
-    emptySubtext: { fontSize: isMobile ? 16 : 20 },
-    emptyIcon: { width: isMobile ? 60 : 80, height: isMobile ? 60 : 80, borderRadius: isMobile ? 30 : 40 },
-    emptyIconText: { fontSize: isMobile ? 28 : 36 },
+    headerTitle: { fontSize: isMobile ? 28 : Platform.isTV ? 60 : 42 },
+    headerSubtitle: { fontSize: isMobile ? 16 : Platform.isTV ? 30 : 22 },
+    emptyText: { fontSize: isMobile ? 22 : Platform.isTV ? 38 : 28 },
+    emptySubtext: { fontSize: isMobile ? 16 : Platform.isTV ? 26 : 20 },
+    emptyIcon: { width: isMobile ? 60 : Platform.isTV ? 108 : 80, height: isMobile ? 60 : Platform.isTV ? 108 : 80, borderRadius: isMobile ? 30 : Platform.isTV ? 54 : 40 },
+    emptyIconText: { fontSize: isMobile ? 28 : Platform.isTV ? 48 : 36 },
     emptyContainer: { paddingBottom: landscapeMobile ? 0 : isMobile ? 20 : 120 },
   }), [sizes, isMobile, tabBarHeight, landscapeMobile, isNativeMobile, insets.top]);
 
@@ -317,22 +317,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#0D1117',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 24,
+    gap: Platform.isTV ? 36 : 24,
   },
   loadingText: {
     color: '#8B95A5',
-    fontSize: 22,
+    fontSize: Platform.isTV ? 34 : 22,
   },
   errorText: {
     color: '#FF3B30',
-    fontSize: 24,
+    fontSize: Platform.isTV ? 34 : 24,
     fontWeight: '600',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
+    gap: Platform.isTV ? 18 : 12,
   },
   emptyIconContainer: {
     borderWidth: 2,
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   emptySubtext: {
     color: '#8B95A5',
     textAlign: 'center',
-    maxWidth: 400,
+    maxWidth: Platform.isTV ? 640 : 400,
   },
   teamToggleRow: {
     marginBottom: 8,
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#1A1F2E',
-    borderRadius: 26,
+    borderRadius: Platform.isTV ? 34 : 26,
     borderWidth: 3,
     borderColor: 'transparent',
     padding: 3,
@@ -405,13 +405,13 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   tvTeamSegment: {
-    minWidth: 150,
+    minWidth: Platform.isTV ? 210 : 150,
     alignItems: 'center',
-    borderRadius: 22,
+    borderRadius: Platform.isTV ? 28 : 22,
     borderWidth: 2,
     borderColor: 'transparent',
-    paddingHorizontal: 18,
-    paddingVertical: 9,
+    paddingHorizontal: Platform.isTV ? 26 : 18,
+    paddingVertical: Platform.isTV ? 14 : 9,
   },
   tvTeamSegmentActive: {
     backgroundColor: '#FFFFFF',
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   },
   tvTeamSegmentText: {
     color: '#B8C0D0',
-    fontSize: 18,
+    fontSize: Platform.isTV ? 25 : 18,
     fontWeight: '700',
   },
   tvTeamSegmentTextActive: {

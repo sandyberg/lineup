@@ -14,16 +14,16 @@ interface EventRowProps {
 }
 
 export function EventRow({ label, events, userServices, sizes, onShowServicePicker }: EventRowProps) {
-  if (events.length === 0) return null;
-
   const liveCount = events.filter((e) => e.status === 'live').length;
 
   const dynamicStyles = useMemo(() => ({
-    labelRow: { paddingHorizontal: sizes.rowPadding, marginBottom: sizes.rowPadding < 32 ? 10 : 16 },
+    labelRow: { paddingHorizontal: sizes.rowPadding, marginBottom: sizes.rowPadding < 32 ? 10 : Platform.isTV ? 22 : 16 },
     label: { fontSize: sizes.sectionLabelSize },
     count: { fontSize: sizes.subtitleSize + 2 },
     listContent: { paddingHorizontal: sizes.rowPadding },
   }), [sizes]);
+
+  if (events.length === 0) return null;
 
   return (
     <View testID={`event-row-${label.toLowerCase().replace(/\s+/g, '-')}`} style={styles.container}>
@@ -68,7 +68,7 @@ export function EventRow({ label, events, userServices, sizes, onShowServicePick
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 32,
+    marginBottom: Platform.isTV ? 46 : 32,
     overflow: 'visible',
   },
   list: {
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   labelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: Platform.isTV ? 18 : 12,
   },
   label: {
     color: '#FFFFFF',
@@ -85,13 +85,13 @@ const styles = StyleSheet.create({
   },
   liveBadge: {
     backgroundColor: '#FF3B30',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: Platform.isTV ? 14 : 10,
+    paddingVertical: Platform.isTV ? 6 : 4,
     borderRadius: 6,
   },
   liveBadgeText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: Platform.isTV ? 18 : 14,
     fontWeight: '800',
   },
   count: {

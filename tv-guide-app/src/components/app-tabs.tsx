@@ -9,7 +9,7 @@ import WebTabs from './app-tabs.web';
  * (via a small expo-router appearance patch) the app background color on the system light
  * focus pill so icon+label are readable when the tab is highlighted.
  */
-const TVOS_LABEL_TYPE = { fontSize: 17, fontWeight: '600' as const };
+const TVOS_LABEL_TYPE = { fontSize: 24, fontWeight: '700' as const };
 
 export default function AppTabs() {
   // Android TV: JS tabs; Apple TV: native — selection pill is light, so we tint labels dark (see below).
